@@ -4,7 +4,6 @@ namespace EmailDirectMarketingBundle\Repository;
 
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
-use DoctrineEnhanceBundle\Repository\CommonRepositoryAware;
 use EmailDirectMarketingBundle\Entity\Sender;
 
 /**
@@ -15,8 +14,6 @@ use EmailDirectMarketingBundle\Entity\Sender;
  */
 class SenderRepository extends ServiceEntityRepository
 {
-    use CommonRepositoryAware;
-
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Sender::class);
