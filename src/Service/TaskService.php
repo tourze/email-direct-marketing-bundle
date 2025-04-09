@@ -2,6 +2,7 @@
 
 namespace EmailDirectMarketingBundle\Service;
 
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Query;
 use EmailDirectMarketingBundle\Entity\Queue;
 use EmailDirectMarketingBundle\Entity\Receiver;
@@ -21,6 +22,7 @@ class TaskService
     public function __construct(
         private readonly LoggerInterface $logger,
         private readonly ReceiverRepository $receiverRepository,
+        private readonly EntityManagerInterface $entityManager,
         private readonly QueueRepository $queueRepository,
         private readonly MessageBusInterface $messageBus,
     ) {
@@ -82,10 +84,11 @@ class TaskService
 
             $sender = $task->getSenders()->get(rand(0, $senderCount - 1));
             $queue->setSender($sender);
-
             $queue->setDone(false);
             $queue->setValid(true);
-            $this->queueRepository->save($queue);
+
+            $this->entityManager->persist($queue);
+            $this->entityManager->flush();
 
             $nextMessage = new SendQueueEmailMessage();
             $nextMessage->setQueueId($queue->getId());

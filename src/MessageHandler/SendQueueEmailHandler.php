@@ -3,6 +3,7 @@
 namespace EmailDirectMarketingBundle\MessageHandler;
 
 use Carbon\Carbon;
+use Doctrine\ORM\EntityManagerInterface;
 use EmailDirectMarketingBundle\Message\SendQueueEmailMessage;
 use EmailDirectMarketingBundle\Repository\QueueRepository;
 use Psr\Log\LoggerInterface;
@@ -22,6 +23,7 @@ class SendQueueEmailHandler
     public function __construct(
         private readonly LoggerInterface $logger,
         private readonly QueueRepository $queueRepository,
+        private readonly EntityManagerInterface $entityManager,
         private readonly Transport $transportFactory,
     ) {
     }
@@ -61,15 +63,13 @@ class SendQueueEmailHandler
 
         try {
             $mailer->send($email);
+            $queue->setDone(true);
         } catch (\Throwable $exception) {
             $queue->setDone(false);
             $queue->setErrorMessage(ExceptionPrinter::exception($exception));
-            $this->queueRepository->save($queue);
-
-            return;
+        } finally {
+            $this->entityManager->persist($queue);
+            $this->entityManager->flush();
         }
-
-        $queue->setDone(true);
-        $this->queueRepository->save($queue);
     }
 }
