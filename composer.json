@@ -22,7 +22,7 @@
     "symfony/messenger": "^6.4",
     "symfony/expression-language": "^6.4",
     "nesbot/carbon": "^2.72 || ^3",
-    "tourze/enum-extra": "^0.0.5",
+    "tourze/enum-extra": "~0.0.5",
     "tourze/backtrace-helper": "~0.0.5",
     "tourze/symfony-async-bundle": "0.0.*",
     "tourze/doctrine-track-bundle": "0.0.*",
