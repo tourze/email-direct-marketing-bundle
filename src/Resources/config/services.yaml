@@ -6,6 +6,8 @@ services:
 
   EmailDirectMarketingBundle\Command\:
     resource: '../../Command/'
+  EmailDirectMarketingBundle\Controller\:
+    resource: '../../Controller/'
   EmailDirectMarketingBundle\MessageHandler\:
     resource: '../../MessageHandler/'
   EmailDirectMarketingBundle\Repository\:

@@ -6,6 +6,8 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use EmailDirectMarketingBundle\Repository\SenderRepository;
 use Tourze\DoctrineIndexedBundle\Attribute\IndexColumn;
+use Tourze\DoctrineTimestampBundle\Attribute\CreateTimeColumn;
+use Tourze\DoctrineTimestampBundle\Attribute\UpdateTimeColumn;
 use Tourze\DoctrineTrackBundle\Attribute\TrackColumn;
 use Tourze\EasyAdmin\Attribute\Action\Creatable;
 use Tourze\EasyAdmin\Attribute\Action\Deletable;
@@ -14,6 +16,7 @@ use Tourze\EasyAdmin\Attribute\Column\BoolColumn;
 use Tourze\EasyAdmin\Attribute\Column\ExportColumn;
 use Tourze\EasyAdmin\Attribute\Column\ListColumn;
 use Tourze\EasyAdmin\Attribute\Field\FormField;
+use Tourze\EasyAdmin\Attribute\Filter\Filterable;
 use Tourze\EasyAdmin\Attribute\Permission\AsPermission;
 
 #[AsPermission(title: '邮件发送器')]
@@ -22,7 +25,7 @@ use Tourze\EasyAdmin\Attribute\Permission\AsPermission;
 #[Creatable]
 #[ORM\Entity(repositoryClass: SenderRepository::class)]
 #[ORM\Table(name: 'ims_edm_sender', options: ['comment' => '邮件发送器'])]
-class Sender
+class Sender implements \Stringable
 {
     #[ListColumn(order: -1)]
     #[ExportColumn]
@@ -32,18 +35,26 @@ class Sender
     private ?int $id = 0;
 
     #[TrackColumn]
+    #[ListColumn]
+    #[FormField]
     #[ORM\Column(length: 100, options: ['comment' => '发送器名称'])]
     private ?string $title = null;
 
     #[TrackColumn]
+    #[ListColumn]
+    #[FormField]
     #[ORM\Column(length: 1000, options: ['comment' => 'DSN'])]
     private ?string $dsn = null;
 
     #[TrackColumn]
+    #[ListColumn]
+    #[FormField]
     #[ORM\Column(length: 100, options: ['comment' => '显示名称'])]
     private ?string $senderName = null;
 
     #[TrackColumn]
+    #[ListColumn]
+    #[FormField]
     #[ORM\Column(length: 200, options: ['comment' => '邮箱地址'])]
     private ?string $emailAddress = null;
 
@@ -54,6 +65,18 @@ class Sender
     #[ListColumn(order: 97)]
     #[FormField(order: 97)]
     private ?bool $valid = false;
+
+    #[CreateTimeColumn]
+    #[IndexColumn]
+    #[ListColumn(sorter: true)]
+    #[Filterable]
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true, options: ['comment' => '创建时间'])]
+    private ?\DateTimeInterface $createTime = null;
+
+    #[UpdateTimeColumn]
+    #[ListColumn(sorter: true)]
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true, options: ['comment' => '更新时间'])]
+    private ?\DateTimeInterface $updateTime = null;
 
     public function getId(): ?int
     {
@@ -118,5 +141,34 @@ class Sender
         $this->valid = $valid;
 
         return $this;
+    }
+
+    public function getCreateTime(): ?\DateTimeInterface
+    {
+        return $this->createTime;
+    }
+
+    public function setCreateTime(?\DateTimeInterface $createTime): self
+    {
+        $this->createTime = $createTime;
+
+        return $this;
+    }
+
+    public function getUpdateTime(): ?\DateTimeInterface
+    {
+        return $this->updateTime;
+    }
+
+    public function setUpdateTime(?\DateTimeInterface $updateTime): self
+    {
+        $this->updateTime = $updateTime;
+
+        return $this;
+    }
+
+    public function __toString(): string
+    {
+        return $this->title ?? '未命名发送器';
     }
 }
