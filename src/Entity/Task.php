@@ -8,7 +8,6 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use EmailDirectMarketingBundle\Enum\TaskStatus;
 use EmailDirectMarketingBundle\Repository\TaskRepository;
-use Symfony\Component\Serializer\Attribute\Groups;
 use Tourze\DoctrineIndexedBundle\Attribute\IndexColumn;
 use Tourze\DoctrineTrackBundle\Attribute\TrackColumn;
 use Tourze\EasyAdmin\Attribute\Action\Creatable;
@@ -30,7 +29,6 @@ class Task
 {
     #[ListColumn(order: -1)]
     #[ExportColumn]
-    #[Groups(['restful_read', 'api_tree', 'admin_curd', 'api_list'])]
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: Types::INTEGER, options: ['comment' => 'ID'])]
@@ -87,7 +85,6 @@ class Task
     #[BoolColumn]
     #[IndexColumn]
     #[TrackColumn]
-    #[Groups(['admin_curd', 'restful_read', 'restful_read', 'restful_write'])]
     #[ORM\Column(type: Types::BOOLEAN, nullable: true, options: ['comment' => '有效', 'default' => 0])]
     #[ListColumn(order: 97)]
     #[FormField(order: 97)]

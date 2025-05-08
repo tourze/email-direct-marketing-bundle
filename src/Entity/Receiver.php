@@ -5,7 +5,6 @@ namespace EmailDirectMarketingBundle\Entity;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use EmailDirectMarketingBundle\Repository\ReceiverRepository;
-use Symfony\Component\Serializer\Attribute\Groups;
 use Tourze\DoctrineTrackBundle\Attribute\TrackColumn;
 use Tourze\EasyAdmin\Attribute\Action\Creatable;
 use Tourze\EasyAdmin\Attribute\Action\Deletable;
@@ -25,7 +24,6 @@ class Receiver
 {
     #[ListColumn(order: -1)]
     #[ExportColumn]
-    #[Groups(['restful_read', 'api_tree', 'admin_curd', 'api_list'])]
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: Types::INTEGER, options: ['comment' => 'ID'])]
