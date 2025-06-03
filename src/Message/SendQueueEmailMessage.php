@@ -2,7 +2,7 @@
 
 namespace EmailDirectMarketingBundle\Message;
 
-use Tourze\Symfony\Async\Message\AsyncMessageInterface;
+use Tourze\AsyncContracts\AsyncMessageInterface;
 
 class SendQueueEmailMessage implements AsyncMessageInterface
 {
