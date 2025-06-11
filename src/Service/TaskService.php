@@ -143,7 +143,7 @@ class TaskService
                 'queueCount' => $queueCount,
             ]);
             
-        } catch  (\Throwable $e) {
+        } catch (\Throwable $e) {
             $this->logger->error("任务[{$task->getId()}]创建队列失败: " . $e->getMessage(), [
                 'task' => $task,
                 'exception' => $e,
@@ -231,7 +231,7 @@ class TaskService
                 ]);
                 $text = str_replace($search, $replace, $text);
             }
-        } catch  (\Throwable $e) {
+        } catch (\Throwable $e) {
             $this->logger->error("变量替换失败: " . $e->getMessage(), [
                 'task' => $task,
                 'receiver' => $receiver,

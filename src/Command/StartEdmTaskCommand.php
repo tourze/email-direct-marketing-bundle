@@ -99,7 +99,7 @@ class StartEdmTaskCommand extends Command
             }
 
             return Command::SUCCESS;
-        } catch  (\Throwable $e) {
+        } catch (\Throwable $e) {
             $this->logger->error('执行任务时发生错误: ' . $e->getMessage(), [
                 'exception' => $e,
                 'taskId' => $taskId,
@@ -125,7 +125,7 @@ class StartEdmTaskCommand extends Command
             $io->info('任务已更新为发送中状态，开始创建队列...');
             $this->taskService->createQueue($task);
             $io->success('任务处理完成');
-        } catch  (\Throwable $e) {
+        } catch (\Throwable $e) {
             $this->logger->error(sprintf('处理任务 #%d 失败: %s', $task->getId(), $e->getMessage()), [
                 'task' => $task,
                 'exception' => $e,
