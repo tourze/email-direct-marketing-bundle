@@ -19,7 +19,7 @@ use Tourze\Symfony\CronJob\Attribute\AsCronTask;
 
 #[AsCronTask('* * * * *')]
 #[AsCommand(
-    name: 'edm:start-task', 
+    name: self::NAME, 
     description: 'EDM检查并开始任务'
 )]
 class StartEdmTaskCommand extends Command
