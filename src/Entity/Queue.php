@@ -8,46 +8,26 @@ use EmailDirectMarketingBundle\Repository\QueueRepository;
 use Tourze\DoctrineIndexedBundle\Attribute\IndexColumn;
 use Tourze\DoctrineTimestampBundle\Traits\TimestampableAware;
 use Tourze\DoctrineTrackBundle\Attribute\TrackColumn;
-use Tourze\EasyAdmin\Attribute\Action\Creatable;
-use Tourze\EasyAdmin\Attribute\Action\Deletable;
-use Tourze\EasyAdmin\Attribute\Action\Editable;
-use Tourze\EasyAdmin\Attribute\Column\BoolColumn;
-use Tourze\EasyAdmin\Attribute\Column\ExportColumn;
-use Tourze\EasyAdmin\Attribute\Column\ListColumn;
-use Tourze\EasyAdmin\Attribute\Field\FormField;
-use Tourze\EasyAdmin\Attribute\Permission\AsPermission;
 
-#[AsPermission(title: 'EDM队列')]
-#[Deletable]
-#[Editable]
-#[Creatable]
 #[ORM\Entity(repositoryClass: QueueRepository::class)]
 #[ORM\Table(name: 'ims_edm_queue', options: ['comment' => 'EDM邮件发送队列'])]
 class Queue implements \Stringable
 {
     use TimestampableAware;
-    #[ListColumn(order: -1)]
-    #[ExportColumn]
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: Types::INTEGER, options: ['comment' => 'ID'])]
     private ?int $id = 0;
 
-    #[ListColumn]
-    #[FormField]
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
     private ?Task $task = null;
 
-    #[ListColumn]
-    #[FormField]
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
     private ?Receiver $receiver = null;
 
     #[TrackColumn]
-    #[ListColumn]
-    #[FormField]
     #[ORM\Column(length: 200, options: ['comment' => '邮件主题'])]
     private ?string $emailSubject = null;
 
@@ -55,36 +35,26 @@ class Queue implements \Stringable
     #[ORM\Column(type: Types::TEXT, options: ['comment' => '邮件内容'])]
     private ?string $emailBody = null;
 
-    #[ListColumn]
-    #[FormField]
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
     private ?Sender $sender = null;
 
     #[TrackColumn]
-    #[ListColumn]
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true, options: ['comment' => '发送时间'])]
     private ?\DateTimeInterface $sendTime = null;
 
-    #[BoolColumn]
     #[IndexColumn]
     #[TrackColumn]
-    #[ListColumn]
-    #[FormField]
     #[ORM\Column(nullable: true, options: ['comment' => '是否已完成'])]
     private ?bool $done = null;
 
     #[TrackColumn]
-    #[ListColumn]
     #[ORM\Column(type: Types::TEXT, nullable: true, options: ['comment' => '错误信息'])]
     private ?string $errorMessage = null;
 
-    #[BoolColumn]
     #[IndexColumn]
     #[TrackColumn]
     #[ORM\Column(type: Types::BOOLEAN, nullable: true, options: ['comment' => '有效', 'default' => 0])]
-    #[ListColumn(order: 97)]
-    #[FormField(order: 97)]
     private ?bool $valid = false;
 
 

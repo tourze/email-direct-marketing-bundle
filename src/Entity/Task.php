@@ -11,87 +11,54 @@ use EmailDirectMarketingBundle\Repository\TaskRepository;
 use Tourze\DoctrineIndexedBundle\Attribute\IndexColumn;
 use Tourze\DoctrineTimestampBundle\Traits\TimestampableAware;
 use Tourze\DoctrineTrackBundle\Attribute\TrackColumn;
-use Tourze\EasyAdmin\Attribute\Action\Creatable;
-use Tourze\EasyAdmin\Attribute\Action\Deletable;
-use Tourze\EasyAdmin\Attribute\Action\Editable;
-use Tourze\EasyAdmin\Attribute\Column\BoolColumn;
-use Tourze\EasyAdmin\Attribute\Column\ExportColumn;
-use Tourze\EasyAdmin\Attribute\Column\ListColumn;
-use Tourze\EasyAdmin\Attribute\Field\FormField;
-use Tourze\EasyAdmin\Attribute\Permission\AsPermission;
 
-#[AsPermission(title: '营销任务')]
-#[Deletable]
-#[Editable]
-#[Creatable]
 #[ORM\Entity(repositoryClass: TaskRepository::class)]
 #[ORM\Table(name: 'ims_edm_task', options: ['comment' => '营销任务'])]
 class Task implements \Stringable
 {
     use TimestampableAware;
-    #[ListColumn(order: -1)]
-    #[ExportColumn]
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: Types::INTEGER, options: ['comment' => 'ID'])]
     private ?int $id = 0;
 
     #[TrackColumn]
-    #[ListColumn]
-    #[FormField]
     #[ORM\Column(length: 120, options: ['comment' => '任务名'])]
     private ?string $title = null;
 
     #[TrackColumn]
-    #[ListColumn]
-    #[FormField]
     #[ORM\Column(type: Types::JSON, options: ['comment' => '发送标签'])]
     private array $tags = [];
 
-    #[ListColumn]
-    #[FormField]
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
     private ?Template $template = null;
 
     #[TrackColumn]
-    #[ListColumn]
-    #[FormField]
     #[ORM\Column(length: 30, enumType: TaskStatus::class, options: ['comment' => '状态', 'default' => 'waiting'])]
     private ?TaskStatus $status = null;
 
     #[TrackColumn]
-    #[ListColumn]
-    #[FormField]
     #[ORM\Column(nullable: true, options: ['comment' => '总发送数量'])]
     private ?int $totalCount = null;
 
     #[TrackColumn]
-    #[ListColumn]
-    #[FormField]
     #[ORM\Column(nullable: true, options: ['comment' => '成功数量'])]
     private ?int $successCount = null;
 
     #[TrackColumn]
-    #[ListColumn]
-    #[FormField]
     #[ORM\Column(nullable: true, options: ['comment' => '失败数量'])]
     private ?int $failureCount = null;
 
-    #[ListColumn]
-    #[FormField]
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, options: ['comment' => '开始时间'])]
     private ?\DateTimeInterface $startTime = null;
 
     #[ORM\ManyToMany(targetEntity: Sender::class, fetch: 'EXTRA_LAZY')]
     private Collection $senders;
 
-    #[BoolColumn]
     #[IndexColumn]
     #[TrackColumn]
     #[ORM\Column(type: Types::BOOLEAN, nullable: true, options: ['comment' => '有效', 'default' => 0])]
-    #[ListColumn(order: 97)]
-    #[FormField(order: 97)]
     private ?bool $valid = false;
 
 
