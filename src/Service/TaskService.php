@@ -12,7 +12,6 @@ use EmailDirectMarketingBundle\Enum\TaskStatus;
 use EmailDirectMarketingBundle\Message\SendQueueEmailMessage;
 use EmailDirectMarketingBundle\Repository\QueueRepository;
 use EmailDirectMarketingBundle\Repository\ReceiverRepository;
-use EmailDirectMarketingBundle\Repository\TaskRepository;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -25,7 +24,6 @@ class TaskService
     public function __construct(
         private readonly LoggerInterface $logger,
         private readonly ReceiverRepository $receiverRepository,
-        private readonly TaskRepository $taskRepository,
         private readonly EntityManagerInterface $entityManager,
         private readonly QueueRepository $queueRepository,
         private readonly MessageBusInterface $messageBus,

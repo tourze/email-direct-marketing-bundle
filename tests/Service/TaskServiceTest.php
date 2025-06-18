@@ -10,7 +10,6 @@ use EmailDirectMarketingBundle\Entity\Task;
 use EmailDirectMarketingBundle\Enum\TaskStatus;
 use EmailDirectMarketingBundle\Repository\QueueRepository;
 use EmailDirectMarketingBundle\Repository\ReceiverRepository;
-use EmailDirectMarketingBundle\Repository\TaskRepository;
 use EmailDirectMarketingBundle\Service\TaskService;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -20,7 +19,6 @@ class TaskServiceTest extends TestCase
 {
     private LoggerInterface $logger;
     private ReceiverRepository $receiverRepository;
-    private TaskRepository $taskRepository;
     private EntityManagerInterface $entityManager;
     private QueueRepository $queueRepository;
     private MessageBusInterface $messageBus;
@@ -30,7 +28,6 @@ class TaskServiceTest extends TestCase
     {
         $this->logger = $this->createMock(LoggerInterface::class);
         $this->receiverRepository = $this->createMock(ReceiverRepository::class);
-        $this->taskRepository = $this->createMock(TaskRepository::class);
         $this->entityManager = $this->createMock(EntityManagerInterface::class);
         $this->queueRepository = $this->createMock(QueueRepository::class);
         $this->messageBus = $this->createMock(MessageBusInterface::class);
@@ -38,7 +35,6 @@ class TaskServiceTest extends TestCase
         $this->taskService = new TaskService(
             $this->logger,
             $this->receiverRepository,
-            $this->taskRepository,
             $this->entityManager,
             $this->queueRepository,
             $this->messageBus

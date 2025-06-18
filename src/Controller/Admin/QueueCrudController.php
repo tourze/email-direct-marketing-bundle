@@ -176,7 +176,7 @@ class QueueCrudController extends AbstractCrudController
         $queue->setDone(false);
         $queue->setErrorMessage(null);
         $queue->setSendTime(null);
-        $queue->setUpdateTime(Carbon::now());
+        $queue->setUpdateTime(Carbon::now()->toDateTimeImmutable());
         
         $this->entityManager->persist($queue);
         $this->entityManager->flush();

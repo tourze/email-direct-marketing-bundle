@@ -136,7 +136,7 @@ class SenderCrudController extends AbstractCrudController
             $mailer->send($email);
             
             // 更新最后测试时间
-            $sender->setUpdateTime(new \DateTime());
+            $sender->setUpdateTime(new \DateTimeImmutable());
             $this->entityManager->persist($sender);
             $this->entityManager->flush();
             

@@ -34,7 +34,7 @@ class SendQueueEmailHandler
             'id' => $message->getQueueId(),
             'valid' => true,
         ]);
-        if (!$queue) {
+        if ($queue === null) {
             $this->logger->warning('找不到发送队列', [
                 'message' => $message,
             ]);

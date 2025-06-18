@@ -24,7 +24,6 @@ class TaskStatusTest extends TestCase
     public function test_toSelectItem_returnsCorrectItems(): void
     {
         $item = TaskStatus::WAITING->toSelectItem();
-        $this->assertIsArray($item);
         $this->assertArrayHasKey('label', $item);
         $this->assertArrayHasKey('value', $item);
         $this->assertArrayHasKey('text', $item);
@@ -36,7 +35,6 @@ class TaskStatusTest extends TestCase
     public function test_toArray_returnsCorrectArray(): void
     {
         $array = TaskStatus::SENDING->toArray();
-        $this->assertIsArray($array);
         $this->assertArrayHasKey('label', $array);
         $this->assertArrayHasKey('value', $array);
         $this->assertSame('发送中', $array['label']);

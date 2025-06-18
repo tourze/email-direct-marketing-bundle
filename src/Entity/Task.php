@@ -9,8 +9,6 @@ use Doctrine\ORM\Mapping as ORM;
 use EmailDirectMarketingBundle\Enum\TaskStatus;
 use EmailDirectMarketingBundle\Repository\TaskRepository;
 use Tourze\DoctrineIndexedBundle\Attribute\IndexColumn;
-use Tourze\DoctrineTimestampBundle\Attribute\CreateTimeColumn;
-use Tourze\DoctrineTimestampBundle\Attribute\UpdateTimeColumn;
 use Tourze\DoctrineTimestampBundle\Traits\TimestampableAware;
 use Tourze\DoctrineTrackBundle\Attribute\TrackColumn;
 use Tourze\EasyAdmin\Attribute\Action\Creatable;
@@ -20,7 +18,6 @@ use Tourze\EasyAdmin\Attribute\Column\BoolColumn;
 use Tourze\EasyAdmin\Attribute\Column\ExportColumn;
 use Tourze\EasyAdmin\Attribute\Column\ListColumn;
 use Tourze\EasyAdmin\Attribute\Field\FormField;
-use Tourze\EasyAdmin\Attribute\Filter\Filterable;
 use Tourze\EasyAdmin\Attribute\Permission\AsPermission;
 
 #[AsPermission(title: '营销任务')]
@@ -83,7 +80,7 @@ class Task implements \Stringable
 
     #[ListColumn]
     #[FormField]
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, options: ['comment' => '开始时间'])]
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, options: ['comment' => '开始时间'])]
     private ?\DateTimeInterface $startTime = null;
 
     #[ORM\ManyToMany(targetEntity: Sender::class, fetch: 'EXTRA_LAZY')]
@@ -97,13 +94,8 @@ class Task implements \Stringable
     #[FormField(order: 97)]
     private ?bool $valid = false;
 
-    #[CreateTimeColumn]
-    #[IndexColumn]
-    #[ListColumn(sorter: true)]
-    #[Filterable]
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true, options: ['comment' => '创建时间'])]#[UpdateTimeColumn]
-    #[ListColumn(sorter: true)]
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true, options: ['comment' => '更新时间'])]public function __construct()
+
+    public function __construct()
     {
         $this->senders = new ArrayCollection();
     }

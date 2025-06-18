@@ -24,6 +24,7 @@ use Tourze\Symfony\CronJob\Attribute\AsCronTask;
 )]
 class StartEdmTaskCommand extends Command
 {
+    public const NAME = 'edm:start-task';
     public function __construct(
         private readonly TaskRepository $taskRepository,
         private readonly EntityManagerInterface $entityManager,
@@ -48,10 +49,10 @@ class StartEdmTaskCommand extends Command
         $now = Carbon::now();
 
         try {
-            if ($taskId) {
+            if ($taskId !== null) {
                 // 执行单个任务
                 $task = $this->taskRepository->find($taskId);
-                if (!$task) {
+                if ($task === null) {
                     $io->error(sprintf('任务ID %d 不存在', $taskId));
                     return Command::FAILURE;
                 }
@@ -66,7 +67,7 @@ class StartEdmTaskCommand extends Command
                     return Command::FAILURE;
                 }
 
-                if (!$force && $task->getStartTime() > $now) {
+                if ($force === false && $task->getStartTime() > $now) {
                     $io->warning(sprintf('任务ID %d 的开始时间是 %s，还未到发送时间', 
                         $taskId, 
                         $task->getStartTime()->format('Y-m-d H:i:s')
