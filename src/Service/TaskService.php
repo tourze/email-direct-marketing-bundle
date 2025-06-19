@@ -2,7 +2,6 @@
 
 namespace EmailDirectMarketingBundle\Service;
 
-use Carbon\Carbon;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Query;
 use EmailDirectMarketingBundle\Entity\Queue;
@@ -225,7 +224,7 @@ class TaskService
                     'receiver' => $receiver,
                     'task' => $task,
                     'text' => $text,
-                    'now' => Carbon::now(),
+                    'now' => new \DateTimeImmutable(),
                 ]);
                 $text = str_replace($search, $replace, $text);
             }

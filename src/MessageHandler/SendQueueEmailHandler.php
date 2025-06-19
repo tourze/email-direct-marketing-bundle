@@ -2,7 +2,6 @@
 
 namespace EmailDirectMarketingBundle\MessageHandler;
 
-use Carbon\Carbon;
 use Doctrine\ORM\EntityManagerInterface;
 use EmailDirectMarketingBundle\Message\SendQueueEmailMessage;
 use EmailDirectMarketingBundle\Repository\QueueRepository;
@@ -49,7 +48,7 @@ class SendQueueEmailHandler
             return;
         }
 
-        $queue->setSendTime(Carbon::now());
+        $queue->setSendTime(new \DateTimeImmutable());
 
         // 创建服务去真实发送
         $mailer = $this->transportFactory->fromString($queue->getSender()->getDsn());

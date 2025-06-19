@@ -2,7 +2,6 @@
 
 namespace EmailDirectMarketingBundle\Controller\Admin;
 
-use Carbon\Carbon;
 use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminAction;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
@@ -183,7 +182,7 @@ class TaskCrudController extends AbstractCrudController
         }
         
         // 设置开始时间为现在
-        $task->setStartTime(Carbon::now());
+        $task->setStartTime(new \DateTimeImmutable());
         $task->setStatus(TaskStatus::SENDING);
         $this->entityManager->persist($task);
         $this->entityManager->flush();

@@ -2,7 +2,6 @@
 
 namespace EmailDirectMarketingBundle\Controller\Admin;
 
-use Carbon\Carbon;
 use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminAction;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
@@ -176,7 +175,7 @@ class QueueCrudController extends AbstractCrudController
         $queue->setDone(false);
         $queue->setErrorMessage(null);
         $queue->setSendTime(null);
-        $queue->setUpdateTime(Carbon::now()->toDateTimeImmutable());
+        $queue->setUpdateTime(new \DateTimeImmutable());
         
         $this->entityManager->persist($queue);
         $this->entityManager->flush();

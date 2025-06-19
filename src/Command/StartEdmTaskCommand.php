@@ -2,7 +2,6 @@
 
 namespace EmailDirectMarketingBundle\Command;
 
-use Carbon\Carbon;
 use Doctrine\ORM\EntityManagerInterface;
 use EmailDirectMarketingBundle\Entity\Task;
 use EmailDirectMarketingBundle\Enum\TaskStatus;
@@ -46,7 +45,7 @@ class StartEdmTaskCommand extends Command
         $io = new SymfonyStyle($input, $output);
         $taskId = $input->getOption('task-id');
         $force = $input->getOption('force');
-        $now = Carbon::now();
+        $now = new \DateTimeImmutable();
 
         try {
             if ($taskId !== null) {
