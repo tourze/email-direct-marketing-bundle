@@ -27,8 +27,7 @@ class SenderCrudController extends AbstractCrudController
 {
     public function __construct(
         private readonly EntityManagerInterface $entityManager
-    ) {
-    }
+    ) {}
 
     public static function getEntityFqcn(): string
     {
@@ -114,7 +113,7 @@ class SenderCrudController extends AbstractCrudController
     /**
      * 测试发送器配置
      */
-    #[AdminAction('{entityId}/test', 'test_sender')]
+    #[AdminAction(routePath: '{entityId}/test', routeName: 'test_sender')]
     public function testSender(AdminContext $context): Response
     {
         /** @var Sender $sender */
@@ -131,15 +130,15 @@ class SenderCrudController extends AbstractCrudController
             // 创建发送器
             $transport = Transport::fromDsn($sender->getDsn());
             $mailer = new Mailer($transport);
-            
+
             // 发送邮件
             $mailer->send($email);
-            
+
             // 更新最后测试时间
             $sender->setUpdateTime(new \DateTimeImmutable());
             $this->entityManager->persist($sender);
             $this->entityManager->flush();
-            
+
             $this->addFlash('success', '测试邮件发送成功，请检查收件箱。');
         } catch (TransportExceptionInterface $e) {
             $this->addFlash('danger', '测试邮件发送失败: ' . $e->getMessage());

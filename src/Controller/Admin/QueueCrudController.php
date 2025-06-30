@@ -29,8 +29,7 @@ class QueueCrudController extends AbstractCrudController
         private readonly AdminUrlGenerator $adminUrlGenerator,
         private readonly EntityManagerInterface $entityManager,
         private readonly MessageBusInterface $messageBus,
-    ) {
-    }
+    ) {}
 
     public static function getEntityFqcn(): string
     {
@@ -165,28 +164,28 @@ class QueueCrudController extends AbstractCrudController
     /**
      * 重新发送邮件
      */
-    #[AdminAction('{entityId}/resend', 'resend_email')]
+    #[AdminAction(routePath: '{entityId}/resend', routeName: 'resend_email')]
     public function resendEmail(AdminContext $context): Response
     {
         /** @var Queue $queue */
         $queue = $context->getEntity()->getInstance();
-        
+
         // 重置队列状态
         $queue->setDone(false);
         $queue->setErrorMessage(null);
         $queue->setSendTime(null);
         $queue->setUpdateTime(new \DateTimeImmutable());
-        
+
         $this->entityManager->persist($queue);
         $this->entityManager->flush();
-        
+
         // 创建新的消息
         $message = new SendQueueEmailMessage();
         $message->setQueueId($queue->getId());
         $this->messageBus->dispatch($message);
-        
+
         $this->addFlash('success', sprintf('邮件已加入发送队列，队列ID: %d', $queue->getId()));
-        
+
         return $this->redirect($this->adminUrlGenerator
             ->setAction(Action::DETAIL)
             ->setEntityId($queue->getId())
@@ -196,17 +195,17 @@ class QueueCrudController extends AbstractCrudController
     /**
      * 查看关联任务
      */
-    #[AdminAction('{entityId}/view-task', 'view_task')]
+    #[AdminAction(routePath: '{entityId}/view-task', routeName: 'view_task')]
     public function viewTask(AdminContext $context): Response
     {
         /** @var Queue $queue */
         $queue = $context->getEntity()->getInstance();
-        
+
         if ($queue->getTask() === null) {
             $this->addFlash('warning', '此队列没有关联任务');
             return $this->redirect($context->getReferrer());
         }
-        
+
         return $this->redirect($this->adminUrlGenerator
             ->unsetAll()
             ->setController(TaskCrudController::class)
@@ -218,17 +217,17 @@ class QueueCrudController extends AbstractCrudController
     /**
      * 查看收件人
      */
-    #[AdminAction('{entityId}/view-receiver', 'view_receiver')]
+    #[AdminAction(routePath: '{entityId}/view-receiver', routeName: 'view_receiver')]
     public function viewReceiver(AdminContext $context): Response
     {
         /** @var Queue $queue */
         $queue = $context->getEntity()->getInstance();
-        
+
         if ($queue->getReceiver() === null) {
             $this->addFlash('warning', '此队列没有关联收件人');
             return $this->redirect($context->getReferrer());
         }
-        
+
         return $this->redirect($this->adminUrlGenerator
             ->unsetAll()
             ->setController(ReceiverCrudController::class)
@@ -240,15 +239,15 @@ class QueueCrudController extends AbstractCrudController
     /**
      * 查看邮件内容
      */
-    #[AdminAction('{entityId}/view-body', 'view_body')]
+    #[AdminAction(routePath: '{entityId}/view-body', routeName: 'view_body')]
     public function viewBody(AdminContext $context): Response
     {
         /** @var Queue $queue */
         $queue = $context->getEntity()->getInstance();
-        
+
         $subject = $queue->getEmailSubject() ?? '无主题';
         $body = $queue->getEmailBody() ?? '无内容';
-        
+
         return new Response("
         <!DOCTYPE html>
         <html>

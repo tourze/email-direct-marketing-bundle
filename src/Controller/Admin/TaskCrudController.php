@@ -33,8 +33,7 @@ class TaskCrudController extends AbstractCrudController
         private readonly AdminUrlGenerator $adminUrlGenerator,
         private readonly TaskService $taskService,
         private readonly EntityManagerInterface $entityManager,
-    ) {
-    }
+    ) {}
 
     public static function getEntityFqcn(): string
     {
@@ -162,36 +161,37 @@ class TaskCrudController extends AbstractCrudController
     /**
      * 立即执行任务
      */
-    #[AdminAction('{entityId}/execute', 'execute_task')]
+    #[AdminAction(routePath: '{entityId}/execute', routeName: 'execute_task')]
     public function executeTask(AdminContext $context, Request $request): Response
     {
         /** @var Task $task */
         $task = $context->getEntity()->getInstance();
-        
+
         // 检查任务状态
         if ($task->getStatus() !== TaskStatus::WAITING) {
-            $this->addFlash('warning', sprintf('任务 #%d 当前状态为 %s，无法执行', 
-                $task->getId(), 
+            $this->addFlash('warning', sprintf(
+                '任务 #%d 当前状态为 %s，无法执行',
+                $task->getId(),
                 $task->getStatus()->getLabel()
             ));
-            
+
             return $this->redirect($this->adminUrlGenerator
                 ->setAction(Action::DETAIL)
                 ->setEntityId($task->getId())
                 ->generateUrl());
         }
-        
+
         // 设置开始时间为现在
         $task->setStartTime(new \DateTimeImmutable());
         $task->setStatus(TaskStatus::SENDING);
         $this->entityManager->persist($task);
         $this->entityManager->flush();
-        
+
         // 异步执行任务
         $this->taskService->createQueue($task);
-        
+
         $this->addFlash('success', sprintf('任务 #%d 已开始执行', $task->getId()));
-        
+
         return $this->redirect($this->adminUrlGenerator
             ->setAction(Action::DETAIL)
             ->setEntityId($task->getId())
@@ -201,35 +201,36 @@ class TaskCrudController extends AbstractCrudController
     /**
      * 重置任务状态
      */
-    #[AdminAction('{entityId}/reset', 'reset_task')]
+    #[AdminAction(routePath: '{entityId}/reset', routeName: 'reset_task')]
     public function resetTask(AdminContext $context, Request $request): Response
     {
         /** @var Task $task */
         $task = $context->getEntity()->getInstance();
-        
+
         // 只有完成的任务才能重置
         if ($task->getStatus() !== TaskStatus::FINISHED) {
-            $this->addFlash('warning', sprintf('只有已完成的任务才能重置，当前状态为: %s', 
+            $this->addFlash('warning', sprintf(
+                '只有已完成的任务才能重置，当前状态为: %s',
                 $task->getStatus()->getLabel()
             ));
-            
+
             return $this->redirect($this->adminUrlGenerator
                 ->setAction(Action::DETAIL)
                 ->setEntityId($task->getId())
                 ->generateUrl());
         }
-        
+
         // 重置任务状态
         $task->setStatus(TaskStatus::WAITING);
         $task->setTotalCount(null);
         $task->setSuccessCount(null);
         $task->setFailureCount(null);
-        
+
         $this->entityManager->persist($task);
         $this->entityManager->flush();
-        
+
         $this->addFlash('success', sprintf('任务 #%d 已重置为等待发送状态', $task->getId()));
-        
+
         return $this->redirect($this->adminUrlGenerator
             ->setAction(Action::DETAIL)
             ->setEntityId($task->getId())
@@ -239,12 +240,12 @@ class TaskCrudController extends AbstractCrudController
     /**
      * 查看任务相关的队列
      */
-    #[AdminAction('{entityId}/queues', 'view_task_queues')]
+    #[AdminAction(routePath: '{entityId}/queues', routeName: 'view_task_queues')]
     public function viewQueues(AdminContext $context, Request $request): Response
     {
         /** @var Task $task */
         $task = $context->getEntity()->getInstance();
-        
+
         return $this->redirect($this->adminUrlGenerator
             ->unsetAll()
             ->setController(QueueCrudController::class)
@@ -253,4 +254,4 @@ class TaskCrudController extends AbstractCrudController
             ->set('filters[task][value]', $task->getId())
             ->generateUrl());
     }
-} 
+}

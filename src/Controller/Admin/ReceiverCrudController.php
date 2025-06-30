@@ -26,8 +26,7 @@ class ReceiverCrudController extends AbstractCrudController
     public function __construct(
         private readonly AdminUrlGenerator $adminUrlGenerator,
         private readonly EntityManagerInterface $entityManager,
-    ) {
-    }
+    ) {}
 
     public static function getEntityFqcn(): string
     {
@@ -133,23 +132,23 @@ class ReceiverCrudController extends AbstractCrudController
     /**
      * 退订收件人
      */
-    #[AdminAction('{entityId}/unsubscribe', 'unsubscribe_receiver')]
+    #[AdminAction(routePath: '{entityId}/unsubscribe', routeName: 'unsubscribe_receiver')]
     public function unsubscribeReceiver(AdminContext $context): Response
     {
         /** @var Receiver $receiver */
         $receiver = $context->getEntity()->getInstance();
-        
+
         if ($receiver->isUnsubscribed()) {
             $this->addFlash('warning', sprintf('收件人 %s 已经退订', $receiver->getName()));
             return $this->redirect($context->getReferrer());
         }
-        
+
         $receiver->setUnsubscribed(true);
         $this->entityManager->persist($receiver);
         $this->entityManager->flush();
-        
+
         $this->addFlash('success', sprintf('收件人 %s 已成功退订', $receiver->getName()));
-        
+
         return $this->redirect($this->adminUrlGenerator
             ->setAction(Action::DETAIL)
             ->setEntityId($receiver->getId())
@@ -159,23 +158,23 @@ class ReceiverCrudController extends AbstractCrudController
     /**
      * 重新订阅收件人
      */
-    #[AdminAction('{entityId}/resubscribe', 'resubscribe_receiver')]
+    #[AdminAction(routePath: '{entityId}/resubscribe', routeName: 'resubscribe_receiver')]
     public function resubscribeReceiver(AdminContext $context): Response
     {
         /** @var Receiver $receiver */
         $receiver = $context->getEntity()->getInstance();
-        
+
         if (!$receiver->isUnsubscribed()) {
             $this->addFlash('warning', sprintf('收件人 %s 未退订', $receiver->getName()));
             return $this->redirect($context->getReferrer());
         }
-        
+
         $receiver->setUnsubscribed(false);
         $this->entityManager->persist($receiver);
         $this->entityManager->flush();
-        
+
         $this->addFlash('success', sprintf('收件人 %s 已重新订阅', $receiver->getName()));
-        
+
         return $this->redirect($this->adminUrlGenerator
             ->setAction(Action::DETAIL)
             ->setEntityId($receiver->getId())
@@ -185,12 +184,12 @@ class ReceiverCrudController extends AbstractCrudController
     /**
      * 查看发送历史
      */
-    #[AdminAction('{entityId}/history', 'view_send_history')]
+    #[AdminAction(routePath: '{entityId}/history', routeName: 'view_send_history')]
     public function viewSendHistory(AdminContext $context): Response
     {
         /** @var Receiver $receiver */
         $receiver = $context->getEntity()->getInstance();
-        
+
         return $this->redirect($this->adminUrlGenerator
             ->unsetAll()
             ->setController(QueueCrudController::class)

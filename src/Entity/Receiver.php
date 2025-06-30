@@ -73,12 +73,12 @@ class Receiver implements \Stringable
 
     public function getTags(): array
     {
-        return $this->tags ?: [];
+        return $this->tags ?? [];
     }
 
     public function setTags(?array $tags): self
     {
-        $this->tags = $tags;
+        $this->tags = $tags ?? [];
 
         return $this;
     }
