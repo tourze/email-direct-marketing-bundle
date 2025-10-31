@@ -15,7 +15,6 @@ enum TaskStatus: string implements Labelable, Itemable, Selectable
 {
     use ItemTrait;
     use SelectTrait;
-
     case WAITING = 'waiting';
     case SENDING = 'sending';
     case FINISHED = 'finished';

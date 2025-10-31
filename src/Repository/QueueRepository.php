@@ -1,21 +1,40 @@
 <?php
 
+declare(strict_types=1);
+
 namespace EmailDirectMarketingBundle\Repository;
 
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use EmailDirectMarketingBundle\Entity\Queue;
+use Tourze\PHPUnitSymfonyKernelTest\Attribute\AsRepository;
 
 /**
- * @method Queue|null find($id, $lockMode = null, $lockVersion = null)
- * @method Queue|null findOneBy(array $criteria, array $orderBy = null)
- * @method Queue[] findAll()
- * @method Queue[] findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @extends ServiceEntityRepository<Queue>
  */
+#[AsRepository(entityClass: Queue::class)]
 class QueueRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Queue::class);
+    }
+
+    public function save(Queue $entity, bool $flush = true): void
+    {
+        $this->getEntityManager()->persist($entity);
+
+        if ($flush) {
+            $this->getEntityManager()->flush();
+        }
+    }
+
+    public function remove(Queue $entity, bool $flush = true): void
+    {
+        $this->getEntityManager()->remove($entity);
+
+        if ($flush) {
+            $this->getEntityManager()->flush();
+        }
     }
 }

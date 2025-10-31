@@ -2,6 +2,7 @@
 
 namespace EmailDirectMarketingBundle\Controller\Admin;
 
+use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminCrud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
@@ -14,8 +15,14 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EmailDirectMarketingBundle\Entity\Template;
+use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 
-class TemplateCrudController extends AbstractCrudController
+/**
+ * @extends AbstractCrudController<Template>
+ */
+#[Autoconfigure(public: true)]
+#[AdminCrud(routePath: '/email-marketing/template', routeName: 'email_marketing_template')]
+final class TemplateCrudController extends AbstractCrudController
 {
     public static function getEntityFqcn(): string
     {
@@ -29,29 +36,34 @@ class TemplateCrudController extends AbstractCrudController
             ->setEntityLabelInPlural('邮件模板')
             ->setPageTitle('index', '邮件模板列表')
             ->setPageTitle('new', '创建邮件模板')
-            ->setPageTitle('edit', fn(Template $template) => sprintf('编辑模板: %s', $template->getName()))
-            ->setPageTitle('detail', fn(Template $template) => sprintf('模板详情: %s', $template->getName()))
+            ->setPageTitle('edit', fn (Template $template) => sprintf('编辑模板: %s', $template->getName()))
+            ->setPageTitle('detail', fn (Template $template) => sprintf('模板详情: %s', $template->getName()))
             ->setDefaultSort(['id' => 'DESC'])
-            ->setSearchFields(['id', 'name', 'subject', 'htmlBody']);
+            ->setSearchFields(['id', 'name', 'subject', 'htmlBody'])
+        ;
     }
 
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new('id', 'ID')
-            ->hideOnForm();
+            ->hideOnForm()
+        ;
 
         yield FormField::addPanel('模板信息')
-            ->setIcon('fa fa-paper-plane');
+            ->setIcon('fa fa-paper-plane')
+        ;
 
         yield TextField::new('name', '模板名称')
             ->setRequired(true)
             ->setColumns(12)
-            ->setHelp('输入模板名称，便于管理和查找');
+            ->setHelp('输入模板名称，便于管理和查找')
+        ;
 
         yield TextField::new('subject', '邮件主题')
             ->setRequired(true)
             ->setColumns(12)
-            ->setHelp('邮件主题会显示在收件人的邮件列表中，支持变量格式：${receiver.getName()}');
+            ->setHelp('邮件主题会显示在收件人的邮件列表中，支持变量格式：${receiver.getName()}')
+        ;
 
         yield TextareaField::new('htmlBody', '邮件内容')
             ->setRequired(true)
@@ -61,34 +73,31 @@ class TemplateCrudController extends AbstractCrudController
             ->setFormTypeOption('attr', [
                 'rows' => 15,
                 'class' => 'html-editor',
-            ]);
+            ])
+        ;
 
         yield FormField::addPanel('系统信息')
-            ->setIcon('fa fa-cog');
+            ->setIcon('fa fa-cog')
+        ;
 
         yield DateTimeField::new('createTime', '创建时间')
-            ->hideOnForm();
+            ->hideOnForm()
+        ;
 
         yield DateTimeField::new('updateTime', '更新时间')
-            ->hideOnForm();
+            ->hideOnForm()
+        ;
 
         yield BooleanField::new('valid', '有效')
-            ->setColumns(12);
+            ->setColumns(12)
+        ;
     }
 
     public function configureActions(Actions $actions): Actions
     {
-        $previewAction = Action::new('previewTemplate', '预览')
-            ->setIcon('fa fa-eye')
-            ->setCssClass('btn btn-info')
-            ->linkToUrl(function (Template $template) {
-                return sprintf('/admin?preview_template=%d', $template->getId());
-            });
-
         return $actions
             ->add(Crud::PAGE_INDEX, Action::DETAIL)
-            ->add(Crud::PAGE_DETAIL, $previewAction)
-            ->reorder(Crud::PAGE_INDEX, [Action::DETAIL, Action::EDIT, Action::DELETE]);
+        ;
     }
 
     public function configureFilters(Filters $filters): Filters
@@ -97,6 +106,7 @@ class TemplateCrudController extends AbstractCrudController
             ->add('name')
             ->add('subject')
             ->add('createTime')
-            ->add('valid');
+            ->add('valid')
+        ;
     }
 }

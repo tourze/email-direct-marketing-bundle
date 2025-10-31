@@ -3,44 +3,45 @@
 namespace EmailDirectMarketingBundle\Tests\DependencyInjection;
 
 use EmailDirectMarketingBundle\DependencyInjection\EmailDirectMarketingExtension;
-use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\Extension\Extension;
+use Tourze\PHPUnitSymfonyUnitTest\AbstractDependencyInjectionExtensionTestCase;
 
-class EmailDirectMarketingExtensionTest extends TestCase
+/**
+ * @internal
+ */
+#[CoversClass(EmailDirectMarketingExtension::class)]
+final class EmailDirectMarketingExtensionTest extends AbstractDependencyInjectionExtensionTestCase
 {
-    private EmailDirectMarketingExtension $extension;
-
-    protected function setUp(): void
+    public function testConfigDirectoryExists(): void
     {
-        $this->extension = new EmailDirectMarketingExtension();
-    }
+        $extension = new EmailDirectMarketingExtension();
+        $reflection = new \ReflectionClass($extension);
+        $method = $reflection->getMethod('getConfigDir');
+        $method->setAccessible(true);
+        $configDir = $method->invoke($extension);
 
-    public function testExtendsExtension(): void
-    {
-        $this->assertInstanceOf(Extension::class, $this->extension);
-    }
-
-    public function testLoadMethodExists(): void
-    {
-        // load 方法在 Extension 基类中定义，所以肯定存在
-        $this->assertTrue(true);
+        $this->assertStringEndsWith('/Resources/config', $configDir);
+        $this->assertDirectoryExists($configDir);
     }
 
     public function testLoadAcceptsArrayAndContainerBuilder(): void
     {
+        $extension = new EmailDirectMarketingExtension();
         $container = new ContainerBuilder();
+        $container->setParameter('kernel.environment', 'test');
         $configs = [];
 
         // 测试load方法不抛出异常
         $this->expectNotToPerformAssertions();
-        $this->extension->load($configs, $container);
+        $extension->load($configs, $container);
     }
 
     public function testGetAliasReturnsString(): void
     {
-        $alias = $this->extension->getAlias();
-        
+        $extension = new EmailDirectMarketingExtension();
+        $alias = $extension->getAlias();
+
         $this->assertNotEmpty($alias);
     }
-} 
+}

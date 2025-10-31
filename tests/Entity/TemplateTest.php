@@ -3,78 +3,109 @@
 namespace EmailDirectMarketingBundle\Tests\Entity;
 
 use EmailDirectMarketingBundle\Entity\Template;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Tourze\PHPUnitDoctrineEntity\AbstractEntityTestCase;
 
-class TemplateTest extends TestCase
+/**
+ * @internal
+ */
+#[CoversClass(Template::class)]
+final class TemplateTest extends AbstractEntityTestCase
 {
-    private Template $template;
-
-    protected function setUp(): void
+    protected function createEntity(): object
     {
-        $this->template = new Template();
+        return new Template();
     }
 
-    public function test_initialState(): void
+    /**
+     * @return iterable<string, array{string, mixed}>
+     */
+    public static function propertiesProvider(): iterable
     {
-        $this->assertSame(0, $this->template->getId());
-        $this->assertEmpty($this->template->getName());
-        $this->assertEmpty($this->template->getSubject());
-        $this->assertEmpty($this->template->getHtmlBody());
-        $this->assertFalse($this->template->isValid());
-        $this->assertNull($this->template->getCreateTime());
-        $this->assertNull($this->template->getUpdateTime());
+        yield 'name' => ['name', 'Test Template'];
+        yield 'subject' => ['subject', 'Test Subject'];
+        yield 'htmlBody' => ['htmlBody', '<p>Test Body</p>'];
+        yield 'valid' => ['valid', true];
     }
 
-    public function test_setName_getName(): void
+    public function testInitialState(): void
     {
+        $template = new Template();
+
+        $this->assertSame(0, $template->getId());
+        $this->assertEmpty($template->getName());
+        $this->assertEmpty($template->getSubject());
+        $this->assertEmpty($template->getHtmlBody());
+        $this->assertFalse($template->isValid());
+        $this->assertNull($template->getCreateTime());
+        $this->assertNull($template->getUpdateTime());
+    }
+
+    public function testSetNameGetName(): void
+    {
+        $template = new Template();
+
         $name = '测试模板';
-        $this->template->setName($name);
-        $this->assertSame($name, $this->template->getName());
+        $template->setName($name);
+        $this->assertSame($name, $template->getName());
     }
 
-    public function test_setSubject_getSubject(): void
+    public function testSetSubjectGetSubject(): void
     {
+        $template = new Template();
+
         $subject = '邮件标题测试';
-        $this->template->setSubject($subject);
-        $this->assertSame($subject, $this->template->getSubject());
+        $template->setSubject($subject);
+        $this->assertSame($subject, $template->getSubject());
     }
 
-    public function test_setHtmlBody_getHtmlBody(): void
+    public function testSetHtmlBodyGetHtmlBody(): void
     {
+        $template = new Template();
+
         $body = '<p>这是一个<strong>HTML</strong>邮件模板</p>';
-        $this->template->setHtmlBody($body);
-        $this->assertSame($body, $this->template->getHtmlBody());
+        $template->setHtmlBody($body);
+        $this->assertSame($body, $template->getHtmlBody());
     }
 
-    public function test_setValid_isValid(): void
+    public function testSetValidIsValid(): void
     {
-        $this->assertFalse($this->template->isValid());
-        
-        $this->template->setValid(true);
-        $this->assertTrue($this->template->isValid());
-        
-        $this->template->setValid(false);
-        $this->assertFalse($this->template->isValid());
+        $template = new Template();
+
+        $this->assertFalse($template->isValid());
+
+        $template->setValid(true);
+        $this->assertTrue($template->isValid());
+
+        $template->setValid(false);
+        $this->assertFalse($template->isValid());
     }
 
-    public function test_setCreateTime_getCreateTime(): void
+    public function testSetCreateTimeGetCreateTime(): void
     {
+        $template = new Template();
+
         $now = new \DateTimeImmutable();
-        $this->template->setCreateTime($now);
-        $this->assertSame($now, $this->template->getCreateTime());
+        $template->setCreateTime($now);
+        $this->assertSame($now, $template->getCreateTime());
     }
 
-    public function test_setUpdateTime_getUpdateTime(): void
+    public function testSetUpdateTimeGetUpdateTime(): void
     {
+        $template = new Template();
+
         $now = new \DateTimeImmutable();
-        $this->template->setUpdateTime($now);
-        $this->assertSame($now, $this->template->getUpdateTime());
+        $template->setUpdateTime($now);
+        $this->assertSame($now, $template->getUpdateTime());
     }
 
-    public function test_toString(): void
+    public function testToString(): void
     {
+        $template = new Template();
+
         $name = '测试模板';
-        $this->template->setName($name);
-        $this->assertSame($name, (string) $this->template);
+        $template->setName($name);
+        $this->assertSame($name, (string) $template);
     }
-} 
+}

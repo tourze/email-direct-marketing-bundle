@@ -2,47 +2,47 @@
 
 namespace EmailDirectMarketingBundle\Tests\Command;
 
-use Doctrine\ORM\EntityManagerInterface;
 use EmailDirectMarketingBundle\Command\StartEdmTaskCommand;
-use EmailDirectMarketingBundle\Repository\TaskRepository;
-use EmailDirectMarketingBundle\Service\TaskService;
-use PHPUnit\Framework\TestCase;
-use Psr\Log\LoggerInterface;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Tester\CommandTester;
+use Tourze\PHPUnitSymfonyKernelTest\AbstractCommandTestCase;
 
-class StartEdmTaskCommandTest extends TestCase
+/**
+ * @internal
+ */
+#[CoversClass(StartEdmTaskCommand::class)]
+#[RunTestsInSeparateProcesses]
+final class StartEdmTaskCommandTest extends AbstractCommandTestCase
 {
-    private StartEdmTaskCommand $command;
-    private TaskRepository $taskRepository;
-    private EntityManagerInterface $entityManager;
-    private TaskService $taskService;
-    private LoggerInterface $logger;
+    private CommandTester $commandTester;
 
-    protected function setUp(): void
+    protected function getCommandTester(): CommandTester
     {
-        $this->taskRepository = $this->createMock(TaskRepository::class);
-        $this->entityManager = $this->createMock(EntityManagerInterface::class);
-        $this->taskService = $this->createMock(TaskService::class);
-        $this->logger = $this->createMock(LoggerInterface::class);
+        return $this->commandTester;
+    }
 
-        $this->command = new StartEdmTaskCommand(
-            $this->taskRepository,
-            $this->entityManager,
-            $this->taskService,
-            $this->logger
-        );
+    protected function onSetUp(): void
+    {
+        /** @var StartEdmTaskCommand $command */
+        $command = self::getContainer()->get(StartEdmTaskCommand::class);
+        $this->assertInstanceOf(StartEdmTaskCommand::class, $command);
+        $this->commandTester = new CommandTester($command);
     }
 
     public function testExtendsCommand(): void
     {
-        $this->assertInstanceOf(Command::class, $this->command);
+        /** @var StartEdmTaskCommand $command */
+        $command = self::getContainer()->get(StartEdmTaskCommand::class);
+        $this->assertInstanceOf(Command::class, $command);
     }
 
     public function testHasCorrectName(): void
     {
-        $this->assertSame(StartEdmTaskCommand::NAME, $this->command->getName());
+        /** @var StartEdmTaskCommand $command */
+        $command = self::getContainer()->get(StartEdmTaskCommand::class);
+        $this->assertSame(StartEdmTaskCommand::NAME, $command->getName());
     }
 
     public function testCommandNameConstant(): void
@@ -52,33 +52,60 @@ class StartEdmTaskCommandTest extends TestCase
 
     public function testCommandHasDescription(): void
     {
-        $description = $this->command->getDescription();
-        
+        /** @var StartEdmTaskCommand $command */
+        $command = self::getContainer()->get(StartEdmTaskCommand::class);
+        $description = $command->getDescription();
         $this->assertNotEmpty($description);
     }
 
     public function testCommandHasOptions(): void
     {
-        $definition = $this->command->getDefinition();
-        
+        /** @var StartEdmTaskCommand $command */
+        $command = self::getContainer()->get(StartEdmTaskCommand::class);
+        $definition = $command->getDefinition();
         $this->assertTrue($definition->hasOption('task-id'));
         $this->assertTrue($definition->hasOption('force'));
     }
 
     public function testTaskIdOptionConfiguration(): void
     {
-        $definition = $this->command->getDefinition();
+        /** @var StartEdmTaskCommand $command */
+        $command = self::getContainer()->get(StartEdmTaskCommand::class);
+        $definition = $command->getDefinition();
         $taskIdOption = $definition->getOption('task-id');
-        
         $this->assertFalse($taskIdOption->isValueRequired());
         $this->assertTrue($taskIdOption->isValueOptional());
     }
 
     public function testForceOptionConfiguration(): void
     {
-        $definition = $this->command->getDefinition();
+        /** @var StartEdmTaskCommand $command */
+        $command = self::getContainer()->get(StartEdmTaskCommand::class);
+        $definition = $command->getDefinition();
         $forceOption = $definition->getOption('force');
-        
         $this->assertFalse($forceOption->acceptValue());
     }
-} 
+
+    public function testOptionTaskId(): void
+    {
+        $exitCode = $this->commandTester->execute(['--task-id' => '999']);
+        $this->assertContains($exitCode, [Command::SUCCESS, Command::FAILURE]);
+        $output = $this->commandTester->getDisplay();
+        $this->assertIsString($output);
+    }
+
+    public function testOptionForce(): void
+    {
+        $exitCode = $this->commandTester->execute(['--force' => true]);
+        $this->assertContains($exitCode, [Command::SUCCESS, Command::FAILURE]);
+        $output = $this->commandTester->getDisplay();
+        $this->assertIsString($output);
+    }
+
+    public function testCommandExecutionWithInvalidTaskId(): void
+    {
+        $exitCode = $this->commandTester->execute(['--task-id' => '999']);
+        $this->assertSame(Command::FAILURE, $exitCode);
+        $this->assertStringContainsString('任务ID 999 不存在', $this->commandTester->getDisplay());
+    }
+}

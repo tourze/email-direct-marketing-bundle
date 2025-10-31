@@ -8,44 +8,56 @@ use EmailDirectMarketingBundle\Entity\Sender;
 use EmailDirectMarketingBundle\Entity\Task;
 use EmailDirectMarketingBundle\Entity\Template;
 use Knp\Menu\ItemInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 use Tourze\EasyAdminMenuBundle\Service\LinkGeneratorInterface;
 use Tourze\EasyAdminMenuBundle\Service\MenuProviderInterface;
 
-class AdminMenu implements MenuProviderInterface
+#[Autoconfigure(public: true)]
+readonly class AdminMenu implements MenuProviderInterface
 {
-    public function __construct(private readonly LinkGeneratorInterface $linkGenerator)
+    public function __construct(private LinkGeneratorInterface $linkGenerator)
     {
     }
 
     public function __invoke(ItemInterface $item): void
     {
-        if ($item->getChild('邮件营销') === null) {
+        if (null === $item->getChild('邮件营销')) {
             $item->addChild('邮件营销');
         }
 
-        $item->getChild('邮件营销')
+        $emailMarketingItem = $item->getChild('邮件营销');
+        if (null === $emailMarketingItem) {
+            return;
+        }
+
+        $emailMarketingItem
             ->addChild('营销任务')
             ->setUri($this->linkGenerator->getCurdListPage(Task::class))
-            ->setAttribute('icon', 'fas fa-tasks');
+            ->setAttribute('icon', 'fas fa-tasks')
+        ;
 
-        $item->getChild('邮件营销')
+        $emailMarketingItem
             ->addChild('邮件模板')
             ->setUri($this->linkGenerator->getCurdListPage(Template::class))
-            ->setAttribute('icon', 'fas fa-file-alt');
+            ->setAttribute('icon', 'fas fa-file-alt')
+        ;
 
-        $item->getChild('邮件营销')
+        $emailMarketingItem
             ->addChild('发送器')
             ->setUri($this->linkGenerator->getCurdListPage(Sender::class))
-            ->setAttribute('icon', 'fas fa-paper-plane');
+            ->setAttribute('icon', 'fas fa-paper-plane')
+        ;
 
-        $item->getChild('邮件营销')
+        $emailMarketingItem
             ->addChild('收件人')
             ->setUri($this->linkGenerator->getCurdListPage(Receiver::class))
-            ->setAttribute('icon', 'fas fa-users');
+            ->setAttribute('icon', 'fas fa-users')
+        ;
 
-        $item->getChild('邮件营销')
+        $emailMarketingItem
             ->addChild('发送队列')
             ->setUri($this->linkGenerator->getCurdListPage(Queue::class))
-            ->setAttribute('icon', 'fas fa-list');
+            ->setAttribute('icon', 'fas fa-list')
+        ;
     }
 }

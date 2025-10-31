@@ -4,6 +4,7 @@ namespace EmailDirectMarketingBundle\Controller\Admin;
 
 use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminAction;
+use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminCrud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
@@ -16,18 +17,28 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\EmailField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\FormField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use EmailDirectMarketingBundle\Entity\Sender;
+use EmailDirectMarketingBundle\Exception\InvalidConfigurationException;
+use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\Mailer\Mailer;
 use Symfony\Component\Mailer\Transport;
 use Symfony\Component\Mime\Email;
 
-class SenderCrudController extends AbstractCrudController
+/**
+ * @extends AbstractCrudController<Sender>
+ */
+#[Autoconfigure(public: true)]
+#[AdminCrud(routePath: '/email-marketing/sender', routeName: 'email_marketing_sender')]
+final class SenderCrudController extends AbstractCrudController
 {
     public function __construct(
-        private readonly EntityManagerInterface $entityManager
-    ) {}
+        private readonly ?AdminUrlGenerator $adminUrlGenerator,
+        private readonly EntityManagerInterface $entityManager,
+    ) {
+    }
 
     public static function getEntityFqcn(): string
     {
@@ -41,51 +52,62 @@ class SenderCrudController extends AbstractCrudController
             ->setEntityLabelInPlural('邮件发送器')
             ->setPageTitle('index', '邮件发送器列表')
             ->setPageTitle('new', '创建邮件发送器')
-            ->setPageTitle('edit', fn(Sender $sender) => sprintf('编辑发送器: %s', $sender->getTitle()))
-            ->setPageTitle('detail', fn(Sender $sender) => sprintf('发送器详情: %s', $sender->getTitle()))
+            ->setPageTitle('edit', fn (Sender $sender) => sprintf('编辑发送器: %s', $sender->getTitle()))
+            ->setPageTitle('detail', fn (Sender $sender) => sprintf('发送器详情: %s', $sender->getTitle()))
             ->setDefaultSort(['id' => 'DESC'])
-            ->setSearchFields(['id', 'title', 'emailAddress', 'senderName']);
+            ->setSearchFields(['id', 'title', 'emailAddress', 'senderName'])
+        ;
     }
 
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new('id', 'ID')
-            ->hideOnForm();
+            ->hideOnForm()
+        ;
 
         yield FormField::addPanel('基本信息')
-            ->setIcon('fa fa-envelope');
+            ->setIcon('fa fa-envelope')
+        ;
 
         yield TextField::new('title', '发送器名称')
             ->setRequired(true)
             ->setColumns(12)
-            ->setHelp('输入发送器名称，便于管理和识别');
+            ->setHelp('输入发送器名称，便于管理和识别')
+        ;
 
         yield TextField::new('dsn', 'DSN')
             ->setRequired(true)
             ->setColumns(12)
-            ->setHelp('例如: smtp://username:password@smtp.example.com:587');
+            ->setHelp('例如: smtp://username:password@smtp.example.com:587')
+        ;
 
         yield TextField::new('senderName', '显示名称')
             ->setRequired(true)
             ->setColumns(6)
-            ->setHelp('发送邮件时显示的名称，例如: 公司名称');
+            ->setHelp('发送邮件时显示的名称，例如: 公司名称')
+        ;
 
         yield EmailField::new('emailAddress', '邮箱地址')
             ->setRequired(true)
             ->setColumns(6)
-            ->setHelp('发送邮件的邮箱地址');
+            ->setHelp('发送邮件的邮箱地址')
+        ;
 
         yield FormField::addPanel('系统信息')
-            ->setIcon('fa fa-cog');
+            ->setIcon('fa fa-cog')
+        ;
 
         yield DateTimeField::new('createTime', '创建时间')
-            ->hideOnForm();
+            ->hideOnForm()
+        ;
 
         yield DateTimeField::new('updateTime', '更新时间')
-            ->hideOnForm();
+            ->hideOnForm()
+        ;
 
         yield BooleanField::new('valid', '有效')
-            ->setColumns(12);
+            ->setColumns(12)
+        ;
     }
 
     public function configureActions(Actions $actions): Actions
@@ -93,12 +115,13 @@ class SenderCrudController extends AbstractCrudController
         $testAction = Action::new('testSender', '测试')
             ->setIcon('fa fa-check-circle')
             ->setCssClass('btn btn-success')
-            ->linkToCrudAction('testSender');
+            ->linkToCrudAction('testSender')
+        ;
 
         return $actions
             ->add(Crud::PAGE_INDEX, Action::DETAIL)
             ->add(Crud::PAGE_DETAIL, $testAction)
-            ->reorder(Crud::PAGE_INDEX, [Action::DETAIL, Action::EDIT, Action::DELETE]);
+        ;
     }
 
     public function configureFilters(Filters $filters): Filters
@@ -107,7 +130,8 @@ class SenderCrudController extends AbstractCrudController
             ->add('title')
             ->add('emailAddress')
             ->add('createTime')
-            ->add('valid');
+            ->add('valid')
+        ;
     }
 
     /**
@@ -116,19 +140,24 @@ class SenderCrudController extends AbstractCrudController
     #[AdminAction(routePath: '{entityId}/test', routeName: 'test_sender')]
     public function testSender(AdminContext $context): Response
     {
-        /** @var Sender $sender */
         $sender = $context->getEntity()->getInstance();
+        assert($sender instanceof Sender);
 
         // 创建一封测试邮件
         $email = (new Email())
             ->from($sender->getEmailAddress())
             ->to($sender->getEmailAddress())
             ->subject('测试邮件 - ' . date('Y-m-d H:i:s'))
-            ->html('<p>这是一封测试邮件，用于验证邮件发送器配置。</p><p>发送时间: ' . date('Y-m-d H:i:s') . '</p>');
+            ->html('<p>这是一封测试邮件，用于验证邮件发送器配置。</p><p>发送时间: ' . date('Y-m-d H:i:s') . '</p>')
+        ;
 
         try {
             // 创建发送器
-            $transport = Transport::fromDsn($sender->getDsn());
+            $dsn = $sender->getDsn();
+            if (null === $dsn) {
+                throw new InvalidConfigurationException('DSN不能为空');
+            }
+            $transport = Transport::fromDsn($dsn);
             $mailer = new Mailer($transport);
 
             // 发送邮件
@@ -144,6 +173,6 @@ class SenderCrudController extends AbstractCrudController
             $this->addFlash('danger', '测试邮件发送失败: ' . $e->getMessage());
         }
 
-        return $this->redirect($context->getReferrer());
+        return $this->redirect($context->getRequest()->headers->get('referer') ?? ($this->adminUrlGenerator?->setController(self::class)->generateUrl() ?? '/'));
     }
 }

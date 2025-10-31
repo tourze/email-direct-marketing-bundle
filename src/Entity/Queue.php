@@ -1,10 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace EmailDirectMarketingBundle\Entity;
 
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use EmailDirectMarketingBundle\Repository\QueueRepository;
+use Symfony\Component\Validator\Constraints as Assert;
 use Tourze\DoctrineIndexedBundle\Attribute\IndexColumn;
 use Tourze\DoctrineTimestampBundle\Traits\TimestampableAware;
 use Tourze\DoctrineTrackBundle\Attribute\TrackColumn;
@@ -14,10 +17,11 @@ use Tourze\DoctrineTrackBundle\Attribute\TrackColumn;
 class Queue implements \Stringable
 {
     use TimestampableAware;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: Types::INTEGER, options: ['comment' => 'ID'])]
-    private ?int $id = 0;
+    private int $id = 0;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
@@ -27,10 +31,14 @@ class Queue implements \Stringable
     #[ORM\JoinColumn(nullable: false)]
     private ?Receiver $receiver = null;
 
+    #[Assert\NotBlank]
+    #[Assert\Length(max: 200)]
     #[TrackColumn]
     #[ORM\Column(length: 200, options: ['comment' => '邮件主题'])]
     private ?string $emailSubject = null;
 
+    #[Assert\NotBlank]
+    #[Assert\Length(max: 65535)]
     #[TrackColumn]
     #[ORM\Column(type: Types::TEXT, options: ['comment' => '邮件内容'])]
     private ?string $emailBody = null;
@@ -39,26 +47,29 @@ class Queue implements \Stringable
     #[ORM\JoinColumn(nullable: false)]
     private ?Sender $sender = null;
 
+    #[Assert\Type(type: '\DateTimeInterface')]
     #[TrackColumn]
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true, options: ['comment' => '发送时间'])]
     private ?\DateTimeInterface $sendTime = null;
 
+    #[Assert\Type(type: 'bool')]
     #[IndexColumn]
     #[TrackColumn]
     #[ORM\Column(nullable: true, options: ['comment' => '是否已完成'])]
     private ?bool $done = null;
 
+    #[Assert\Length(max: 65535)]
     #[TrackColumn]
     #[ORM\Column(type: Types::TEXT, nullable: true, options: ['comment' => '错误信息'])]
     private ?string $errorMessage = null;
 
+    #[Assert\Type(type: 'bool')]
     #[IndexColumn]
     #[TrackColumn]
     #[ORM\Column(type: Types::BOOLEAN, nullable: true, options: ['comment' => '有效', 'default' => 0])]
     private ?bool $valid = false;
 
-
-    public function getId(): ?int
+    public function getId(): int
     {
         return $this->id;
     }
@@ -68,11 +79,9 @@ class Queue implements \Stringable
         return $this->task;
     }
 
-    public function setTask(?Task $task): self
+    public function setTask(?Task $task): void
     {
         $this->task = $task;
-
-        return $this;
     }
 
     public function getReceiver(): ?Receiver
@@ -80,11 +89,9 @@ class Queue implements \Stringable
         return $this->receiver;
     }
 
-    public function setReceiver(?Receiver $receiver): self
+    public function setReceiver(?Receiver $receiver): void
     {
         $this->receiver = $receiver;
-
-        return $this;
     }
 
     public function getEmailSubject(): ?string
@@ -92,11 +99,9 @@ class Queue implements \Stringable
         return $this->emailSubject;
     }
 
-    public function setEmailSubject(string $emailSubject): self
+    public function setEmailSubject(string $emailSubject): void
     {
         $this->emailSubject = $emailSubject;
-
-        return $this;
     }
 
     public function getEmailBody(): ?string
@@ -104,11 +109,9 @@ class Queue implements \Stringable
         return $this->emailBody;
     }
 
-    public function setEmailBody(string $emailBody): self
+    public function setEmailBody(string $emailBody): void
     {
         $this->emailBody = $emailBody;
-
-        return $this;
     }
 
     public function getSender(): ?Sender
@@ -116,11 +119,9 @@ class Queue implements \Stringable
         return $this->sender;
     }
 
-    public function setSender(?Sender $sender): self
+    public function setSender(?Sender $sender): void
     {
         $this->sender = $sender;
-
-        return $this;
     }
 
     public function getSendTime(): ?\DateTimeInterface
@@ -128,11 +129,9 @@ class Queue implements \Stringable
         return $this->sendTime;
     }
 
-    public function setSendTime(?\DateTimeInterface $sendTime): self
+    public function setSendTime(?\DateTimeInterface $sendTime): void
     {
         $this->sendTime = $sendTime;
-
-        return $this;
     }
 
     public function isDone(): ?bool
@@ -140,11 +139,9 @@ class Queue implements \Stringable
         return $this->done;
     }
 
-    public function setDone(?bool $done): self
+    public function setDone(?bool $done): void
     {
         $this->done = $done;
-
-        return $this;
     }
 
     public function getErrorMessage(): ?string
@@ -152,11 +149,9 @@ class Queue implements \Stringable
         return $this->errorMessage;
     }
 
-    public function setErrorMessage(?string $errorMessage): self
+    public function setErrorMessage(?string $errorMessage): void
     {
         $this->errorMessage = $errorMessage;
-
-        return $this;
     }
 
     public function isValid(): ?bool
@@ -164,12 +159,12 @@ class Queue implements \Stringable
         return $this->valid;
     }
 
-    public function setValid(?bool $valid): self
+    public function setValid(?bool $valid): void
     {
         $this->valid = $valid;
+    }
 
-        return $this;
-    }public function __toString(): string
+    public function __toString(): string
     {
         return '邮件队列 #' . $this->id;
     }

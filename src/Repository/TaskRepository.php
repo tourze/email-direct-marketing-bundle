@@ -1,18 +1,19 @@
 <?php
 
+declare(strict_types=1);
+
 namespace EmailDirectMarketingBundle\Repository;
 
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use EmailDirectMarketingBundle\Entity\Task;
 use EmailDirectMarketingBundle\Enum\TaskStatus;
+use Tourze\PHPUnitSymfonyKernelTest\Attribute\AsRepository;
 
 /**
- * @method Task|null find($id, $lockMode = null, $lockVersion = null)
- * @method Task|null findOneBy(array $criteria, array $orderBy = null)
- * @method Task[] findAll()
- * @method Task[] findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @extends ServiceEntityRepository<Task>
  */
+#[AsRepository(entityClass: Task::class)]
 class TaskRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
@@ -33,7 +34,8 @@ class TaskRepository extends ServiceEntityRepository
             ->setParameter('status', TaskStatus::WAITING)
             ->orderBy('t.id', 'ASC')
             ->getQuery()
-            ->getResult();
+            ->getResult()
+        ;
     }
 
     /**
@@ -49,32 +51,53 @@ class TaskRepository extends ServiceEntityRepository
             ->setParameter('status', TaskStatus::SENDING)
             ->orderBy('t.id', 'ASC')
             ->getQuery()
-            ->getResult();
+            ->getResult()
+        ;
     }
 
     /**
      * 根据标签查询任务
      *
-     * @param array $tags 标签列表
+     * @param array<string> $tags 标签列表
+     *
      * @return Task[]
      */
     public function findByTags(array $tags): array
     {
         $qb = $this->createQueryBuilder('t');
         $expr = $qb->expr();
-        
+
         $conditions = [];
         foreach ($tags as $index => $tag) {
             $paramName = 'tag_' . $index;
             $conditions[] = $expr->like('t.tags', $expr->literal('%' . $tag . '%'));
         }
-        
-        if (!empty($conditions)) {
+
+        if ([] !== $conditions) {
             $qb->where($expr->orX(...$conditions));
         }
-        
+
         return $qb->orderBy('t.id', 'DESC')
             ->getQuery()
-            ->getResult();
+            ->getResult()
+        ;
+    }
+
+    public function save(Task $entity, bool $flush = true): void
+    {
+        $this->getEntityManager()->persist($entity);
+
+        if ($flush) {
+            $this->getEntityManager()->flush();
+        }
+    }
+
+    public function remove(Task $entity, bool $flush = true): void
+    {
+        $this->getEntityManager()->remove($entity);
+
+        if ($flush) {
+            $this->getEntityManager()->flush();
+        }
     }
 }

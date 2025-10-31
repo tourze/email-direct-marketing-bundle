@@ -3,115 +3,153 @@
 namespace EmailDirectMarketingBundle\Tests\Entity;
 
 use EmailDirectMarketingBundle\Entity\Receiver;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Tourze\PHPUnitDoctrineEntity\AbstractEntityTestCase;
 
-class ReceiverTest extends TestCase
+/**
+ * @internal
+ */
+#[CoversClass(Receiver::class)]
+final class ReceiverTest extends AbstractEntityTestCase
 {
-    private Receiver $receiver;
-
-    protected function setUp(): void
+    protected function createEntity(): object
     {
-        $this->receiver = new Receiver();
+        return new Receiver();
+    }
+
+    /**
+     * @return iterable<string, array{string, mixed}>
+     */
+    public static function propertiesProvider(): iterable
+    {
+        return [
+            'tags' => ['tags', ['key' => 'value']],
+        ];
     }
 
     public function testGetAndSetName(): void
     {
-        $name = '张三';
-        $this->receiver->setName($name);
+        $receiver = new Receiver();
 
-        $this->assertSame($name, $this->receiver->getName());
+        $name = '张三';
+        $receiver->setName($name);
+
+        $this->assertSame($name, $receiver->getName());
     }
 
     public function testGetNameReturnsStringValue(): void
     {
-        $this->receiver->setName('测试用户');
+        $receiver = new Receiver();
 
-        $result = $this->receiver->getName();
+        $receiver->setName('测试用户');
+
+        $result = $receiver->getName();
 
         $this->assertSame('测试用户', $result);
     }
 
     public function testGetAndSetEmailAddress(): void
     {
-        $emailAddress = 'test@example.com';
-        $this->receiver->setEmailAddress($emailAddress);
+        $receiver = new Receiver();
 
-        $this->assertSame($emailAddress, $this->receiver->getEmailAddress());
+        $emailAddress = 'test@example.com';
+        $receiver->setEmailAddress($emailAddress);
+
+        $this->assertSame($emailAddress, $receiver->getEmailAddress());
     }
 
     public function testGetEmailAddressReturnsStringValue(): void
     {
-        $this->receiver->setEmailAddress('test@example.com');
+        $receiver = new Receiver();
 
-        $result = $this->receiver->getEmailAddress();
+        $receiver->setEmailAddress('test@example.com');
+
+        $result = $receiver->getEmailAddress();
 
         $this->assertSame('test@example.com', $result);
     }
 
     public function testGetAndSetTags(): void
     {
-        $tags = ['vip', 'premium'];
-        $this->receiver->setTags($tags);
+        $receiver = new Receiver();
 
-        $this->assertSame($tags, $this->receiver->getTags());
+        $tags = ['vip', 'premium'];
+        $receiver->setTags($tags);
+
+        $this->assertSame($tags, $receiver->getTags());
     }
 
     public function testGetTagsReturnsEmptyArrayWhenEmpty(): void
     {
-        $this->receiver->setTags([]);
+        $receiver = new Receiver();
 
-        $result = $this->receiver->getTags();
+        $receiver->setTags([]);
+
+        $result = $receiver->getTags();
 
         $this->assertSame([], $result);
     }
 
     public function testGetAndSetLastSendTime(): void
     {
-        $lastSendTime = new \DateTimeImmutable();
-        $this->receiver->setLastSendTime($lastSendTime);
+        $receiver = new Receiver();
 
-        $this->assertSame($lastSendTime, $this->receiver->getLastSendTime());
+        $lastSendTime = new \DateTimeImmutable();
+        $receiver->setLastSendTime($lastSendTime);
+
+        $this->assertSame($lastSendTime, $receiver->getLastSendTime());
     }
 
     public function testGetAndSetUnsubscribed(): void
     {
-        $this->receiver->setUnsubscribed(true);
-        $this->assertTrue($this->receiver->isUnsubscribed());
+        $receiver = new Receiver();
 
-        $this->receiver->setUnsubscribed(false);
-        $this->assertFalse($this->receiver->isUnsubscribed());
+        $receiver->setUnsubscribed(true);
+        $this->assertTrue($receiver->isUnsubscribed());
 
-        $this->receiver->setUnsubscribed(null);
-        $this->assertNull($this->receiver->isUnsubscribed());
+        $receiver->setUnsubscribed(false);
+        $this->assertFalse($receiver->isUnsubscribed());
+
+        $receiver->setUnsubscribed(null);
+        $this->assertNull($receiver->isUnsubscribed());
     }
 
     public function testToStringWithName(): void
     {
-        $name = '张三';
-        $this->receiver->setName($name);
+        $receiver = new Receiver();
 
-        $this->assertSame($name, (string) $this->receiver);
+        $name = '张三';
+        $receiver->setName($name);
+
+        $this->assertSame($name, (string) $receiver);
     }
 
     public function testToStringWithEmailAddressWhenNoName(): void
     {
-        $emailAddress = 'test@example.com';
-        $this->receiver->setEmailAddress($emailAddress);
+        $receiver = new Receiver();
 
-        $result = (string) $this->receiver;
+        $emailAddress = 'test@example.com';
+        $receiver->setEmailAddress($emailAddress);
+
+        $result = (string) $receiver;
 
         $this->assertSame($emailAddress, $result);
     }
 
     public function testToStringDefault(): void
     {
-        $result = (string) $this->receiver;
+        $receiver = new Receiver();
+
+        $result = (string) $receiver;
 
         $this->assertSame('未命名接收者', $result);
     }
 
     public function testImplementsStringable(): void
     {
-        $this->assertInstanceOf('Stringable', $this->receiver);
+        $receiver = new Receiver();
+
+        $this->assertInstanceOf('Stringable', $receiver);
     }
 }

@@ -8,9 +8,17 @@ services:
     resource: '../../Command/'
   EmailDirectMarketingBundle\Controller\:
     resource: '../../Controller/'
+    public: true
   EmailDirectMarketingBundle\MessageHandler\:
     resource: '../../MessageHandler/'
   EmailDirectMarketingBundle\Repository\:
     resource: '../../Repository/'
   EmailDirectMarketingBundle\Service\:
     resource: '../../Service/'
+
+  EmailDirectMarketingBundle\Service\AdminMenu:
+    tags: ['email_direct_marketing.admin_menu']
+  
+  # Alias Transport class to the factory service
+  Symfony\Component\Mailer\Transport:
+    alias: 'mailer.transport_factory'

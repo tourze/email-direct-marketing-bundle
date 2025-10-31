@@ -1,17 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
 namespace EmailDirectMarketingBundle\Repository;
 
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use EmailDirectMarketingBundle\Entity\Receiver;
+use Tourze\PHPUnitSymfonyKernelTest\Attribute\AsRepository;
 
 /**
- * @method Receiver|null find($id, $lockMode = null, $lockVersion = null)
- * @method Receiver|null findOneBy(array $criteria, array $orderBy = null)
- * @method Receiver[] findAll()
- * @method Receiver[] findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @extends ServiceEntityRepository<Receiver>
  */
+#[AsRepository(entityClass: Receiver::class)]
 class ReceiverRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
@@ -30,47 +31,44 @@ class ReceiverRepository extends ServiceEntityRepository
             ->where('r.unsubscribed = false OR r.unsubscribed IS NULL')
             ->orderBy('r.id', 'ASC')
             ->getQuery()
-            ->getResult();
+            ->getResult()
+        ;
     }
 
     /**
      * 根据标签查找收件人
      *
-     * @param array $tags 标签列表
+     * @param array<string> $tags 标签列表
+     *
      * @return Receiver[]
      */
     public function findByTags(array $tags): array
     {
-        $tagConditions = [];
-        $parameters = [];
-
-        foreach ($tags as $i => $tag) {
-            $paramName = 'tag_' . $i;
-            $tagConditions[] = "JSON_SEARCH(r.tags, 'one', :{$paramName}) IS NOT NULL";
-            $parameters[$paramName] = $tag;
-        }
-
         $qb = $this->createQueryBuilder('r')
-            ->where('r.unsubscribed != true');
+            ->where('r.unsubscribed != true')
+        ;
 
-        if (!empty($tagConditions)) {
-            $qb->andWhere('(' . implode(' OR ', $tagConditions) . ')');
-            
-            foreach ($parameters as $key => $value) {
-                $qb->setParameter($key, $value);
+        if ([] !== $tags) {
+            $conditions = [];
+            foreach ($tags as $i => $tag) {
+                $paramName = 'tag_' . $i;
+                $conditions[] = $qb->expr()->like('r.tags', ':' . $paramName);
+                $qb->setParameter($paramName, '%"' . $tag . '"%');
             }
+
+            $qb->andWhere($qb->expr()->orX(...$conditions));
         }
 
         return $qb->orderBy('r.id', 'ASC')
             ->getQuery()
-            ->getResult();
+            ->getResult()
+        ;
     }
 
     /**
      * 查找指定邮箱地址的收件人
      *
      * @param string $email 邮箱地址
-     * @return Receiver|null
      */
     public function findByEmail(string $email): ?Receiver
     {
@@ -78,13 +76,15 @@ class ReceiverRepository extends ServiceEntityRepository
             ->where('r.emailAddress = :email')
             ->setParameter('email', $email)
             ->getQuery()
-            ->getOneOrNullResult();
+            ->getOneOrNullResult()
+        ;
     }
 
     /**
      * 查找长时间未收到邮件的收件人
      *
      * @param \DateTimeInterface $beforeDate 指定日期之前
+     *
      * @return Receiver[]
      */
     public function findNotContactedSince(\DateTimeInterface $beforeDate): array
@@ -95,6 +95,25 @@ class ReceiverRepository extends ServiceEntityRepository
             ->setParameter('beforeDate', $beforeDate)
             ->orderBy('r.lastSendTime', 'ASC')
             ->getQuery()
-            ->getResult();
+            ->getResult()
+        ;
+    }
+
+    public function save(Receiver $entity, bool $flush = true): void
+    {
+        $this->getEntityManager()->persist($entity);
+
+        if ($flush) {
+            $this->getEntityManager()->flush();
+        }
+    }
+
+    public function remove(Receiver $entity, bool $flush = true): void
+    {
+        $this->getEntityManager()->remove($entity);
+
+        if ($flush) {
+            $this->getEntityManager()->flush();
+        }
     }
 }

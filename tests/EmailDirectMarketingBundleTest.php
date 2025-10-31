@@ -1,18 +1,19 @@
 <?php
 
+declare(strict_types=1);
+
 namespace EmailDirectMarketingBundle\Tests;
 
 use EmailDirectMarketingBundle\EmailDirectMarketingBundle;
-use PHPUnit\Framework\TestCase;
-use Symfony\Component\HttpKernel\Bundle\Bundle;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
+use Tourze\PHPUnitSymfonyKernelTest\AbstractBundleTestCase;
 
-class EmailDirectMarketingBundleTest extends TestCase
+/**
+ * @internal
+ */
+#[CoversClass(EmailDirectMarketingBundle::class)]
+#[RunTestsInSeparateProcesses]
+final class EmailDirectMarketingBundleTest extends AbstractBundleTestCase
 {
-    public function test_bundle_instantiation(): void
-    {
-        $bundle = new EmailDirectMarketingBundle();
-        
-        $this->assertInstanceOf(Bundle::class, $bundle);
-        $this->assertInstanceOf(EmailDirectMarketingBundle::class, $bundle);
-    }
-} 
+}

@@ -3,9 +3,14 @@
 namespace EmailDirectMarketingBundle\Tests\Message;
 
 use EmailDirectMarketingBundle\Message\SendQueueEmailMessage;
-use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
+use Tourze\PHPUnitBase\AbstractExceptionTestCase;
 
-class SendQueueEmailMessageTest extends TestCase
+/**
+ * @internal
+ */
+#[CoversClass(SendQueueEmailMessage::class)]
+final class SendQueueEmailMessageTest extends AbstractExceptionTestCase
 {
     public function testQueueIdGetterAndSetter(): void
     {

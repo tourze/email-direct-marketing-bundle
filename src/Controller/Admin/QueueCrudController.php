@@ -4,11 +4,12 @@ namespace EmailDirectMarketingBundle\Controller\Admin;
 
 use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminAction;
+use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminCrud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
-use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
+use EasyCorp\Bundle\EasyAdminBundle\Contracts\Context\AdminContextInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
@@ -17,19 +18,26 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\FormField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
-use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
+use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGeneratorInterface;
 use EmailDirectMarketingBundle\Entity\Queue;
 use EmailDirectMarketingBundle\Message\SendQueueEmailMessage;
+use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
 
-class QueueCrudController extends AbstractCrudController
+/**
+ * @extends AbstractCrudController<Queue>
+ */
+#[Autoconfigure(public: true)]
+#[AdminCrud(routePath: '/email-marketing/queue', routeName: 'email_marketing_queue')]
+final class QueueCrudController extends AbstractCrudController
 {
     public function __construct(
-        private readonly AdminUrlGenerator $adminUrlGenerator,
+        private readonly ?AdminUrlGeneratorInterface $adminUrlGenerator,
         private readonly EntityManagerInterface $entityManager,
         private readonly MessageBusInterface $messageBus,
-    ) {}
+    ) {
+    }
 
     public static function getEntityFqcn(): string
     {
@@ -43,35 +51,42 @@ class QueueCrudController extends AbstractCrudController
             ->setEntityLabelInPlural('邮件队列')
             ->setPageTitle('index', '邮件队列列表')
             ->setPageTitle('new', '创建邮件队列')
-            ->setPageTitle('edit', fn(Queue $queue) => sprintf('编辑队列 #%d', $queue->getId()))
-            ->setPageTitle('detail', fn(Queue $queue) => sprintf('队列详情 #%d', $queue->getId()))
+            ->setPageTitle('edit', fn (Queue $queue) => sprintf('编辑队列 #%d', $queue->getId()))
+            ->setPageTitle('detail', fn (Queue $queue) => sprintf('队列详情 #%d', $queue->getId()))
             ->setDefaultSort(['id' => 'DESC'])
             ->setPaginatorPageSize(50)
-            ->setSearchFields(['id', 'emailSubject', 'errorMessage']);
+            ->setSearchFields(['id', 'emailSubject', 'errorMessage'])
+        ;
     }
 
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new('id', 'ID')
-            ->hideOnForm();
+            ->hideOnForm()
+        ;
 
         yield FormField::addPanel('任务信息')
-            ->setIcon('fa fa-tasks');
+            ->setIcon('fa fa-tasks')
+        ;
 
         yield AssociationField::new('task', '关联任务')
             ->setRequired(true)
-            ->setColumns(6);
+            ->setColumns(6)
+        ;
 
         yield AssociationField::new('receiver', '收件人')
             ->setRequired(true)
-            ->setColumns(6);
+            ->setColumns(6)
+        ;
 
         yield FormField::addPanel('邮件内容')
-            ->setIcon('fa fa-envelope');
+            ->setIcon('fa fa-envelope')
+        ;
 
         yield TextField::new('emailSubject', '邮件主题')
             ->setRequired(true)
-            ->setColumns(12);
+            ->setColumns(12)
+        ;
 
         yield TextareaField::new('emailBody', '邮件内容')
             ->setRequired(true)
@@ -79,39 +94,49 @@ class QueueCrudController extends AbstractCrudController
             ->setColumns(12)
             ->setFormTypeOption('attr', [
                 'rows' => 10,
-            ]);
+            ])
+        ;
 
         yield FormField::addPanel('发送信息')
-            ->setIcon('fa fa-paper-plane');
+            ->setIcon('fa fa-paper-plane')
+        ;
 
         yield AssociationField::new('sender', '发送器')
             ->setRequired(true)
-            ->setColumns(6);
+            ->setColumns(6)
+        ;
 
         yield DateTimeField::new('sendTime', '发送时间')
             ->setColumns(6)
-            ->hideOnForm();
+            ->hideOnForm()
+        ;
 
         yield BooleanField::new('done', '已完成')
             ->setColumns(6)
-            ->renderAsSwitch(false);
+            ->renderAsSwitch(false)
+        ;
 
         yield TextareaField::new('errorMessage', '错误信息')
             ->hideOnIndex()
             ->setColumns(12)
-            ->hideOnForm();
+            ->hideOnForm()
+        ;
 
         yield FormField::addPanel('系统信息')
-            ->setIcon('fa fa-cog');
+            ->setIcon('fa fa-cog')
+        ;
 
         yield DateTimeField::new('createTime', '创建时间')
-            ->hideOnForm();
+            ->hideOnForm()
+        ;
 
         yield DateTimeField::new('updateTime', '更新时间')
-            ->hideOnForm();
+            ->hideOnForm()
+        ;
 
         yield BooleanField::new('valid', '有效')
-            ->setColumns(12);
+            ->setColumns(12)
+        ;
     }
 
     public function configureActions(Actions $actions): Actions
@@ -121,32 +146,35 @@ class QueueCrudController extends AbstractCrudController
             ->setCssClass('btn btn-success')
             ->displayIf(static function (Queue $queue) {
                 // 只有失败的邮件才能重新发送
-                return $queue->isDone() && $queue->getErrorMessage() !== null;
+                return true === $queue->isDone() && null !== $queue->getErrorMessage();
             })
-            ->linkToCrudAction('resendEmail');
+            ->linkToCrudAction('resendEmail')
+        ;
 
         $viewTaskAction = Action::new('viewTask', '查看任务')
             ->setIcon('fa fa-tasks')
             ->setCssClass('btn btn-info')
-            ->linkToCrudAction('viewTask');
+            ->linkToCrudAction('viewTask')
+        ;
 
         $viewReceiverAction = Action::new('viewReceiver', '查看收件人')
             ->setIcon('fa fa-user')
             ->setCssClass('btn btn-info')
-            ->linkToCrudAction('viewReceiver');
+            ->linkToCrudAction('viewReceiver')
+        ;
 
         $viewBodyAction = Action::new('viewBody', '查看内容')
             ->setIcon('fa fa-file-alt')
             ->setCssClass('btn btn-info')
-            ->linkToCrudAction('viewBody');
+            ->linkToCrudAction('viewBody')
+        ;
 
         return $actions
-            ->add(Crud::PAGE_INDEX, Action::DETAIL)
             ->add(Crud::PAGE_DETAIL, $resendAction)
             ->add(Crud::PAGE_DETAIL, $viewTaskAction)
             ->add(Crud::PAGE_DETAIL, $viewReceiverAction)
             ->add(Crud::PAGE_DETAIL, $viewBodyAction)
-            ->reorder(Crud::PAGE_INDEX, [Action::DETAIL, Action::EDIT, Action::DELETE]);
+        ;
     }
 
     public function configureFilters(Filters $filters): Filters
@@ -158,17 +186,18 @@ class QueueCrudController extends AbstractCrudController
             ->add('done')
             ->add('sendTime')
             ->add('createTime')
-            ->add('valid');
+            ->add('valid')
+        ;
     }
 
     /**
      * 重新发送邮件
      */
     #[AdminAction(routePath: '{entityId}/resend', routeName: 'resend_email')]
-    public function resendEmail(AdminContext $context): Response
+    public function resendEmail(AdminContextInterface $context): Response
     {
-        /** @var Queue $queue */
         $queue = $context->getEntity()->getInstance();
+        assert($queue instanceof Queue);
 
         // 重置队列状态
         $queue->setDone(false);
@@ -187,63 +216,65 @@ class QueueCrudController extends AbstractCrudController
         $this->addFlash('success', sprintf('邮件已加入发送队列，队列ID: %d', $queue->getId()));
 
         return $this->redirect($this->adminUrlGenerator
-            ->setAction(Action::DETAIL)
+            ?->setAction(Action::DETAIL)
             ->setEntityId($queue->getId())
-            ->generateUrl());
+            ->generateUrl() ?? '/');
     }
 
     /**
      * 查看关联任务
      */
     #[AdminAction(routePath: '{entityId}/view-task', routeName: 'view_task')]
-    public function viewTask(AdminContext $context): Response
+    public function viewTask(AdminContextInterface $context): Response
     {
-        /** @var Queue $queue */
         $queue = $context->getEntity()->getInstance();
+        assert($queue instanceof Queue);
 
-        if ($queue->getTask() === null) {
+        if (null === $queue->getTask()) {
             $this->addFlash('warning', '此队列没有关联任务');
-            return $this->redirect($context->getReferrer());
+
+            return $this->redirect($context->getRequest()->headers->get('referer') ?? ($this->adminUrlGenerator?->setController(self::class)->generateUrl() ?? '/'));
         }
 
         return $this->redirect($this->adminUrlGenerator
-            ->unsetAll()
+            ?->unsetAll()
             ->setController(TaskCrudController::class)
             ->setAction(Action::DETAIL)
             ->setEntityId($queue->getTask()->getId())
-            ->generateUrl());
+            ->generateUrl() ?? '/');
     }
 
     /**
      * 查看收件人
      */
     #[AdminAction(routePath: '{entityId}/view-receiver', routeName: 'view_receiver')]
-    public function viewReceiver(AdminContext $context): Response
+    public function viewReceiver(AdminContextInterface $context): Response
     {
-        /** @var Queue $queue */
         $queue = $context->getEntity()->getInstance();
+        assert($queue instanceof Queue);
 
-        if ($queue->getReceiver() === null) {
+        if (null === $queue->getReceiver()) {
             $this->addFlash('warning', '此队列没有关联收件人');
-            return $this->redirect($context->getReferrer());
+
+            return $this->redirect($context->getRequest()->headers->get('referer') ?? ($this->adminUrlGenerator?->setController(self::class)->generateUrl() ?? '/'));
         }
 
         return $this->redirect($this->adminUrlGenerator
-            ->unsetAll()
+            ?->unsetAll()
             ->setController(ReceiverCrudController::class)
             ->setAction(Action::DETAIL)
             ->setEntityId($queue->getReceiver()->getId())
-            ->generateUrl());
+            ->generateUrl() ?? '/');
     }
 
     /**
      * 查看邮件内容
      */
     #[AdminAction(routePath: '{entityId}/view-body', routeName: 'view_body')]
-    public function viewBody(AdminContext $context): Response
+    public function viewBody(AdminContextInterface $context): Response
     {
-        /** @var Queue $queue */
         $queue = $context->getEntity()->getInstance();
+        assert($queue instanceof Queue);
 
         $subject = $queue->getEmailSubject() ?? '无主题';
         $body = $queue->getEmailBody() ?? '无内容';

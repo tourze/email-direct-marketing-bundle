@@ -6,109 +6,170 @@ use EmailDirectMarketingBundle\Entity\Queue;
 use EmailDirectMarketingBundle\Entity\Receiver;
 use EmailDirectMarketingBundle\Entity\Sender;
 use EmailDirectMarketingBundle\Entity\Task;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Tourze\PHPUnitDoctrineEntity\AbstractEntityTestCase;
 
-class QueueTest extends TestCase
+/**
+ * @internal
+ */
+#[CoversClass(Queue::class)]
+final class QueueTest extends AbstractEntityTestCase
 {
-    private Queue $queue;
-
-    protected function setUp(): void
+    protected function createEntity(): object
     {
-        $this->queue = new Queue();
+        return new Queue();
     }
 
-    public function test_initialState(): void
+    /**
+     * @return iterable<string, array{string, mixed}>
+     */
+    public static function propertiesProvider(): iterable
     {
-        $this->assertSame(0, $this->queue->getId());
-        $this->assertNull($this->queue->getTask());
-        $this->assertNull($this->queue->getSender());
-        $this->assertNull($this->queue->getReceiver());
-        $this->assertNull($this->queue->getEmailSubject());
-        $this->assertNull($this->queue->getEmailBody());
-        $this->assertNull($this->queue->getErrorMessage());
-        $this->assertNull($this->queue->isDone());
-        $this->assertFalse($this->queue->isValid());
-        $this->assertNull($this->queue->getCreateTime());
-        $this->assertNull($this->queue->getUpdateTime());
+        yield 'emailSubject' => ['emailSubject', 'Test Subject'];
+        yield 'emailBody' => ['emailBody', '<p>Test Body</p>'];
+        yield 'done' => ['done', true];
+        yield 'valid' => ['valid', true];
     }
 
-    public function test_setTask_getTask(): void
+    public function testQueueCreation(): void
     {
+        $queue = new Queue();
+
+        // 测试初始状态
+        $this->assertSame(0, $queue->getId());
+        $this->assertNull($queue->getTask());
+        $this->assertNull($queue->getSender());
+        $this->assertNull($queue->getReceiver());
+        $this->assertNull($queue->getEmailSubject());
+        $this->assertNull($queue->getEmailBody());
+        $this->assertNull($queue->getErrorMessage());
+        $this->assertNull($queue->isDone());
+        $this->assertFalse($queue->isValid());
+        $this->assertNull($queue->getCreateTime());
+        $this->assertNull($queue->getUpdateTime());
+    }
+
+    public function testInitialState(): void
+    {
+        $queue = new Queue();
+
+        $this->assertSame(0, $queue->getId());
+        $this->assertNull($queue->getTask());
+        $this->assertNull($queue->getSender());
+        $this->assertNull($queue->getReceiver());
+        $this->assertNull($queue->getEmailSubject());
+        $this->assertNull($queue->getEmailBody());
+        $this->assertNull($queue->getErrorMessage());
+        $this->assertNull($queue->isDone());
+        $this->assertFalse($queue->isValid());
+        $this->assertNull($queue->getCreateTime());
+        $this->assertNull($queue->getUpdateTime());
+    }
+
+    public function testSetTaskGetTask(): void
+    {
+        $queue = new Queue();
+
+        // 使用具体Entity类进行Mock，因为测试的是setter/getter的基本功能
+        // Entity之间的关联关系不需要真实的业务逻辑，Mock对象足够验证属性设置
         $task = $this->createMock(Task::class);
-        $this->queue->setTask($task);
-        $this->assertSame($task, $this->queue->getTask());
+        $queue->setTask($task);
+        $this->assertSame($task, $queue->getTask());
     }
 
-    public function test_setSender_getSender(): void
+    public function testSetSenderGetSender(): void
     {
+        $queue = new Queue();
+
+        // 使用具体Entity类进行Mock，因为测试的是setter/getter的基本功能
+        // Entity之间的关联关系不需要真实的业务逻辑，Mock对象足够验证属性设置
         $sender = $this->createMock(Sender::class);
-        $this->queue->setSender($sender);
-        $this->assertSame($sender, $this->queue->getSender());
+        $queue->setSender($sender);
+        $this->assertSame($sender, $queue->getSender());
     }
 
-    public function test_setReceiver_getReceiver(): void
+    public function testSetReceiverGetReceiver(): void
     {
+        $queue = new Queue();
+
+        // 使用具体Entity类进行Mock，因为测试的是setter/getter的基本功能
+        // Entity之间的关联关系不需要真实的业务逻辑，Mock对象足够验证属性设置
         $receiver = $this->createMock(Receiver::class);
-        $this->queue->setReceiver($receiver);
-        $this->assertSame($receiver, $this->queue->getReceiver());
+        $queue->setReceiver($receiver);
+        $this->assertSame($receiver, $queue->getReceiver());
     }
 
-    public function test_setEmailSubject_getEmailSubject(): void
+    public function testSetEmailSubjectGetEmailSubject(): void
     {
+        $queue = new Queue();
+
         $subject = '测试邮件标题';
-        $this->queue->setEmailSubject($subject);
-        $this->assertSame($subject, $this->queue->getEmailSubject());
+        $queue->setEmailSubject($subject);
+        $this->assertSame($subject, $queue->getEmailSubject());
     }
 
-    public function test_setEmailBody_getEmailBody(): void
+    public function testSetEmailBodyGetEmailBody(): void
     {
+        $queue = new Queue();
+
         $body = '<p>测试邮件内容</p>';
-        $this->queue->setEmailBody($body);
-        $this->assertSame($body, $this->queue->getEmailBody());
+        $queue->setEmailBody($body);
+        $this->assertSame($body, $queue->getEmailBody());
     }
 
-    public function test_setErrorMessage_getErrorMessage(): void
+    public function testSetErrorMessageGetErrorMessage(): void
     {
-        $this->assertNull($this->queue->getErrorMessage());
-        
+        $queue = new Queue();
+
+        $this->assertNull($queue->getErrorMessage());
+
         $errorMessage = '发送失败: 无效地址';
-        $this->queue->setErrorMessage($errorMessage);
-        $this->assertSame($errorMessage, $this->queue->getErrorMessage());
+        $queue->setErrorMessage($errorMessage);
+        $this->assertSame($errorMessage, $queue->getErrorMessage());
     }
 
-    public function test_setDone_isDone(): void
+    public function testSetDoneIsDone(): void
     {
-        $this->assertNull($this->queue->isDone());
-        
-        $this->queue->setDone(true);
-        $this->assertTrue($this->queue->isDone());
-        
-        $this->queue->setDone(false);
-        $this->assertFalse($this->queue->isDone());
+        $queue = new Queue();
+
+        $this->assertNull($queue->isDone());
+
+        $queue->setDone(true);
+        $this->assertTrue($queue->isDone());
+
+        $queue->setDone(false);
+        $this->assertFalse($queue->isDone());
     }
 
-    public function test_setValid_isValid(): void
+    public function testSetValidIsValid(): void
     {
-        $this->assertFalse($this->queue->isValid());
-        
-        $this->queue->setValid(true);
-        $this->assertTrue($this->queue->isValid());
-        
-        $this->queue->setValid(false);
-        $this->assertFalse($this->queue->isValid());
+        $queue = new Queue();
+
+        $this->assertFalse($queue->isValid());
+
+        $queue->setValid(true);
+        $this->assertTrue($queue->isValid());
+
+        $queue->setValid(false);
+        $this->assertFalse($queue->isValid());
     }
 
-    public function test_setCreateTime_getCreateTime(): void
+    public function testSetCreateTimeGetCreateTime(): void
     {
+        $queue = new Queue();
+
         $now = new \DateTimeImmutable();
-        $this->queue->setCreateTime($now);
-        $this->assertSame($now, $this->queue->getCreateTime());
+        $queue->setCreateTime($now);
+        $this->assertSame($now, $queue->getCreateTime());
     }
 
-    public function test_setUpdateTime_getUpdateTime(): void
+    public function testSetUpdateTimeGetUpdateTime(): void
     {
+        $queue = new Queue();
+
         $now = new \DateTimeImmutable();
-        $this->queue->setUpdateTime($now);
-        $this->assertSame($now, $this->queue->getUpdateTime());
+        $queue->setUpdateTime($now);
+        $this->assertSame($now, $queue->getUpdateTime());
     }
-} 
+}

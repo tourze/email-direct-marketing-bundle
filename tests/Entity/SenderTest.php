@@ -3,87 +3,121 @@
 namespace EmailDirectMarketingBundle\Tests\Entity;
 
 use EmailDirectMarketingBundle\Entity\Sender;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Tourze\PHPUnitDoctrineEntity\AbstractEntityTestCase;
 
-class SenderTest extends TestCase
+/**
+ * @internal
+ */
+#[CoversClass(Sender::class)]
+final class SenderTest extends AbstractEntityTestCase
 {
-    private Sender $sender;
-
-    protected function setUp(): void
+    protected function createEntity(): object
     {
-        $this->sender = new Sender();
+        return new Sender();
+    }
+
+    /**
+     * @return iterable<string, array{string, mixed}>
+     */
+    public static function propertiesProvider(): iterable
+    {
+        yield 'title' => ['title', 'Test Sender'];
+        yield 'dsn' => ['dsn', 'smtp://user:pass@host:587'];
+        yield 'senderName' => ['senderName', 'Test Sender Name'];
+        yield 'emailAddress' => ['emailAddress', 'test@example.com'];
+        yield 'valid' => ['valid', true];
     }
 
     public function testGetAndSetTitle(): void
     {
-        $title = '测试发送器';
-        $this->sender->setTitle($title);
+        $sender = new Sender();
 
-        $this->assertSame($title, $this->sender->getTitle());
+        $title = '测试发送器';
+        $sender->setTitle($title);
+
+        $this->assertSame($title, $sender->getTitle());
     }
 
     public function testGetAndSetDsn(): void
     {
-        $dsn = 'smtp://user:pass@host:587';
-        $this->sender->setDsn($dsn);
+        $sender = new Sender();
 
-        $this->assertSame($dsn, $this->sender->getDsn());
+        $dsn = 'smtp://user:pass@host:587';
+        $sender->setDsn($dsn);
+
+        $this->assertSame($dsn, $sender->getDsn());
     }
 
     public function testGetAndSetSenderName(): void
     {
-        $senderName = '测试发送者';
-        $this->sender->setSenderName($senderName);
+        $sender = new Sender();
 
-        $this->assertSame($senderName, $this->sender->getSenderName());
+        $senderName = '测试发送者';
+        $sender->setSenderName($senderName);
+
+        $this->assertSame($senderName, $sender->getSenderName());
     }
 
     public function testGetAndSetEmailAddress(): void
     {
-        $emailAddress = 'test@example.com';
-        $this->sender->setEmailAddress($emailAddress);
+        $sender = new Sender();
 
-        $this->assertSame($emailAddress, $this->sender->getEmailAddress());
+        $emailAddress = 'test@example.com';
+        $sender->setEmailAddress($emailAddress);
+
+        $this->assertSame($emailAddress, $sender->getEmailAddress());
     }
 
     public function testGetEmailAddressReturnsStringValue(): void
     {
-        $this->sender->setEmailAddress('test@example.com');
+        $sender = new Sender();
 
-        $result = $this->sender->getEmailAddress();
+        $sender->setEmailAddress('test@example.com');
+
+        $result = $sender->getEmailAddress();
 
         $this->assertSame('test@example.com', $result);
     }
 
     public function testGetAndSetValid(): void
     {
-        $this->sender->setValid(true);
-        $this->assertTrue($this->sender->isValid());
+        $sender = new Sender();
 
-        $this->sender->setValid(false);
-        $this->assertFalse($this->sender->isValid());
+        $sender->setValid(true);
+        $this->assertTrue($sender->isValid());
 
-        $this->sender->setValid(null);
-        $this->assertNull($this->sender->isValid());
+        $sender->setValid(false);
+        $this->assertFalse($sender->isValid());
+
+        $sender->setValid(null);
+        $this->assertNull($sender->isValid());
     }
 
     public function testToStringWithTitle(): void
     {
-        $title = '测试发送器';
-        $this->sender->setTitle($title);
+        $sender = new Sender();
 
-        $this->assertSame($title, (string) $this->sender);
+        $title = '测试发送器';
+        $sender->setTitle($title);
+
+        $this->assertSame($title, (string) $sender);
     }
 
     public function testToStringWithoutTitle(): void
     {
-        $result = (string) $this->sender;
+        $sender = new Sender();
+
+        $result = (string) $sender;
 
         $this->assertSame('未命名发送器', $result);
     }
 
     public function testImplementsStringable(): void
     {
-        $this->assertInstanceOf('Stringable', $this->sender);
+        $sender = new Sender();
+
+        $this->assertInstanceOf('Stringable', $sender);
     }
 }
