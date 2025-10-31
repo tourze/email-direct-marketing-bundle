@@ -35,7 +35,7 @@
     "tourze/doctrine-timestamp-bundle": "0.0.*",
     "tourze/doctrine-track-bundle": "0.1.*",
     "tourze/easy-admin-menu-bundle": "0.1.*",
-    "tourze/enum-extra": "0.1.*",
+    "tourze/enum-extra": "1.*",
     "tourze/symfony-aop-async-bundle": "0.0.*",
     "tourze/symfony-aop-bundle": "~0.0.4",
     "tourze/symfony-cron-job-bundle": "0.1.*",
