@@ -82,7 +82,7 @@ class SendQueueEmailHandler
         $mailer = $this->transportFactory->fromString($senderDsn);
         $email = (new Email())
             ->from(new Address($senderEmail, $senderName ?? ''))
-            ->to(new Address($receiverEmail, $receiverName ?? ''))
+            ->to(new Address($receiverEmail, $receiverName))
             ->subject($emailSubject)
             ->html($queue->getEmailBody())
         ;
